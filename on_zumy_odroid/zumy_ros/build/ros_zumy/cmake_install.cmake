@@ -1,8 +1,8 @@
-# Install script for directory: /home/doug/Desktop/ee106_zumy_support/zumy_ros/src/ros_zumy
+# Install script for directory: /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src/ros_zumy
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/doug/Desktop/ee106_zumy_support/zumy_ros/install")
+  SET(CMAKE_INSTALL_PREFIX "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/install")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ IF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumy.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumy.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ros_zumy/cmake" TYPE FILE FILES
-    "/home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumyConfig.cmake"
-    "/home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumyConfig-version.cmake"
+    "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumyConfig.cmake"
+    "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy/catkin_generated/installspace/ros_zumyConfig-version.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ros_zumy" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/zumy_ros/src/ros_zumy/package.xml")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ros_zumy" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src/ros_zumy/package.xml")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 

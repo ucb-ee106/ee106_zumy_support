@@ -260,7 +260,7 @@ if __name__ == '__main__':
             sys.exit(1)
 
         # environment at generation time
-        CMAKE_PREFIX_PATH = '/opt/ros/indigo'.split(';')
+        CMAKE_PREFIX_PATH = '/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros_106b/devel;/opt/ros/indigo'.split(';')
         # prepend current workspace if not already part of CPP
         base_path = os.path.dirname(__file__)
         if base_path not in CMAKE_PREFIX_PATH:

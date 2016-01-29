@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/doug/Desktop/ee106_zumy_support/zumy_ros/src
+CMAKE_SOURCE_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/doug/Desktop/ee106_zumy_support/zumy_ros/build
+CMAKE_BINARY_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build
 
 # Utility rule file for run_tests.
 
@@ -60,6 +60,6 @@ CMakeFiles/run_tests.dir/clean:
 .PHONY : CMakeFiles/run_tests.dir/clean
 
 CMakeFiles/run_tests.dir/depend:
-	cd /home/doug/Desktop/ee106_zumy_support/zumy_ros/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/doug/Desktop/ee106_zumy_support/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/zumy_ros/build/CMakeFiles/run_tests.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/CMakeFiles/run_tests.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/run_tests.dir/depend
 

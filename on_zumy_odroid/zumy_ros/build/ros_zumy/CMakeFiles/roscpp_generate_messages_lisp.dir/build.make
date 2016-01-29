@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/doug/Desktop/ee106_zumy_support/zumy_ros/src
+CMAKE_SOURCE_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/doug/Desktop/ee106_zumy_support/zumy_ros/build
+CMAKE_BINARY_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build
 
 # Utility rule file for roscpp_generate_messages_lisp.
 
@@ -56,10 +56,10 @@ ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/build: roscpp_generate_mes
 .PHONY : ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/build
 
 ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/clean:
-	cd /home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy && $(CMAKE_COMMAND) -P CMakeFiles/roscpp_generate_messages_lisp.dir/cmake_clean.cmake
+	cd /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy && $(CMAKE_COMMAND) -P CMakeFiles/roscpp_generate_messages_lisp.dir/cmake_clean.cmake
 .PHONY : ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/clean
 
 ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/depend:
-	cd /home/doug/Desktop/ee106_zumy_support/zumy_ros/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/doug/Desktop/ee106_zumy_support/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/zumy_ros/src/ros_zumy /home/doug/Desktop/ee106_zumy_support/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy /home/doug/Desktop/ee106_zumy_support/zumy_ros/build/ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/src/ros_zumy /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/build/ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : ros_zumy/CMakeFiles/roscpp_generate_messages_lisp.dir/depend
 

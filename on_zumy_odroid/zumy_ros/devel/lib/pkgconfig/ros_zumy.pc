@@ -1,8 +1,8 @@
-prefix=/home/doug/Desktop/ee106_zumy_support/zumy_ros/devel
+prefix=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/devel
 
 Name: ros_zumy
 Description: Description of ros_zumy
 Version: 0.0.0
 Cflags: 
-Libs: -L/home/doug/Desktop/ee106_zumy_support/zumy_ros/devel/lib 
+Libs: -L/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/devel/lib 
 Requires: 

@@ -19,11 +19,15 @@ class ZumyROS:
     self.lock = Condition()
     self.rate = rospy.Rate(30.0)
     self.name = socket.gethostname()
+    
+    #publishers
     self.heartBeat = rospy.Publisher('heartBeat', String, queue_size=5)
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
     self.r_enc_pub = rospy.Publisher('r_enc', Int16, queue_size = 5)
     self.l_enc_pub = rospy.Publisher('l_enc', Int16, queue_size = 5)
     self.imu_count = 0
+
+    self.batt_pub = rospy.Publisher('Batt',Float,queue_size = 5)
 
   def cmd_callback(self, msg):
     lv = 0.6
@@ -60,6 +64,8 @@ class ZumyROS:
       enc_msg.data = enc_data[1]
       self.l_enc_pub.publish(enc_msg)
 
+      v_bat = self.zumy.read_voltage()
+      self.imu_count.publish(v_bat)
       self.heartBeat.publish("I am alive")
       self.rate.sleep()
 
