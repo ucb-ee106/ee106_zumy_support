@@ -7,3 +7,5 @@
 elf
 .hex
 .map
+compiled_on.txt
+git_log.txt
