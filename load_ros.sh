@@ -9,7 +9,7 @@ NAME="$1"
 echo "Loading to " $NAME
 
 echo "Deleting everything"
-ssh "zumy@"$NAME".local" "rm -rf *"
+ssh "zumy@"$NAME".local" "sudo rm -rf *"
 
 echo "Loading ROS code"
 cd on_zumy_odroid/
