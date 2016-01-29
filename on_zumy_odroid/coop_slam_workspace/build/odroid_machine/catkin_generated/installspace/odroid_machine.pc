@@ -1,0 +1,8 @@
+prefix=/home/zumy/coop_slam_workspace/install
+
+Name: odroid_machine
+Description: Description of odroid_machine
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/zumy/coop_slam_workspace/install/lib 
+Requires: 

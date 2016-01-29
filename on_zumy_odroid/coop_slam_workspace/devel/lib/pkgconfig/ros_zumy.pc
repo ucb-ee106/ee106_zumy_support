@@ -1,0 +1,8 @@
+prefix=/home/zumy/coop_slam_workspace/devel
+
+Name: ros_zumy
+Description: Description of ros_zumy
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/zumy/coop_slam_workspace/devel/lib 
+Requires: 
