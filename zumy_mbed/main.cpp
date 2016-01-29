@@ -25,11 +25,13 @@ MPU6050 mpu6050;
 DigitalOut init_done(LED1);
 DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
+DigitalOut test(LED4);
 
 int main() {
     init_done = 0;
     imu_good = 0;
     main_loop = 0;
+    test = 0;
     
     //Set up I2C
     i2c.frequency(400000);  // use fast (400 kHz) I2C
@@ -53,8 +55,9 @@ int main() {
             imu_good = 1;
         }
     }
-    
+    test = 1;
     init_done = 1;
+
     uint8_t loop_count = 10;
     while(1) {
         wait_ms(10);
@@ -65,7 +68,7 @@ int main() {
         //pc.printf("Pulses are: %i, %i\r\n", l_enc,r_enc);
         
         if (!(--loop_count)) {
-            loop_count = 10;
+            loop_count = 100;
             main_loop = !main_loop;
         }
         
