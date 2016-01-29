@@ -13,7 +13,7 @@ ssh "zumy@"$NAME".local" "sudo rm -rf *"
 
 echo "Loading ROS code"
 cd on_zumy_odroid/
-scp -r * "zumy@"$NAME".local:"
+scp -rp .* "zumy@"$NAME".local:"
 cd ../
 
 #echo "Loading Mbed .bin file"

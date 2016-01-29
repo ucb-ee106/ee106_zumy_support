@@ -8,7 +8,7 @@
 
 # since this file is sourced either use the provided _CATKIN_SETUP_DIR
 # or fall back to the destination set at configure time
-: ${_CATKIN_SETUP_DIR:=/home/zumy/coop_slam_workspace/devel}
+: ${_CATKIN_SETUP_DIR:=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/devel}
 _SETUP_UTIL="$_CATKIN_SETUP_DIR/_setup_util.py"
 unset _CATKIN_SETUP_DIR
 

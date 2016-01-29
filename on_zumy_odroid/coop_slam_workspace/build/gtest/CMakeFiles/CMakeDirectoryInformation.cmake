@@ -3,7 +3,7 @@
 
 # Relative path conversion top directories.
 SET(CMAKE_RELATIVE_PATH_TOP_SOURCE "/usr/src/gtest")
-SET(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/zumy/coop_slam_workspace/build")
+SET(CMAKE_RELATIVE_PATH_TOP_BINARY "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build")
 
 # Force unix paths in dependencies.
 SET(CMAKE_FORCE_UNIX_PATHS 1)

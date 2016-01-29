@@ -1,2 +1,2 @@
-odroid_machine:ros_zumy
--DCATKIN_DEVEL_PREFIX=/home/zumy/coop_slam_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/zumy/coop_slam_workspace/install -G Unix Makefiles
+odroid_machine
+-DCATKIN_DEVEL_PREFIX=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/devel -DCMAKE_INSTALL_PREFIX=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/install -G Unix Makefiles

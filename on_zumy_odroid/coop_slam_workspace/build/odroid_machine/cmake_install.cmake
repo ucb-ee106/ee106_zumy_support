@@ -1,8 +1,8 @@
-# Install script for directory: /home/zumy/coop_slam_workspace/src/odroid_machine
+# Install script for directory: /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/src/odroid_machine
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  SET(CMAKE_INSTALL_PREFIX "/home/zumy/coop_slam_workspace/install")
+  SET(CMAKE_INSTALL_PREFIX "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/install")
 ENDIF(NOT DEFINED CMAKE_INSTALL_PREFIX)
 STRING(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -33,17 +33,17 @@ IF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 ENDIF(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/zumy/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machine.pc")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machine.pc")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
   FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/odroid_machine/cmake" TYPE FILE FILES
-    "/home/zumy/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machineConfig.cmake"
-    "/home/zumy/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machineConfig-version.cmake"
+    "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machineConfig.cmake"
+    "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine/catkin_generated/installspace/odroid_machineConfig-version.cmake"
     )
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 
 IF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
-  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/odroid_machine" TYPE FILE FILES "/home/zumy/coop_slam_workspace/src/odroid_machine/package.xml")
+  FILE(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/odroid_machine" TYPE FILE FILES "/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/src/odroid_machine/package.xml")
 ENDIF(NOT CMAKE_INSTALL_COMPONENT OR "${CMAKE_INSTALL_COMPONENT}" STREQUAL "Unspecified")
 

@@ -5,7 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from threading import Condition
 from zumy import Zumy
-from std_msgs.msg import String,Header,Int16
+from std_msgs.msg import String,Header,Int16,Float32
 from sensor_msgs.msg import Imu
 
 import socket,time
@@ -27,7 +27,7 @@ class ZumyROS:
     self.l_enc_pub = rospy.Publisher('l_enc', Int16, queue_size = 5)
     self.imu_count = 0
 
-    self.batt_pub = rospy.Publisher('Batt',Float,queue_size = 5)
+    self.batt_pub = rospy.Publisher('Batt',Float32,queue_size = 5)
 
   def cmd_callback(self, msg):
     lv = 0.6
@@ -65,7 +65,7 @@ class ZumyROS:
       self.l_enc_pub.publish(enc_msg)
 
       v_bat = self.zumy.read_voltage()
-      self.imu_count.publish(v_bat)
+      self.batt_pub.publish(v_bat)
       self.heartBeat.publish("I am alive")
       self.rate.sleep()
 

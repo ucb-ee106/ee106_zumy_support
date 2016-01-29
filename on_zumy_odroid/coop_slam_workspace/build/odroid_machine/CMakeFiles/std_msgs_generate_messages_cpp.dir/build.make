@@ -35,10 +35,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/zumy/coop_slam_workspace/src
+CMAKE_SOURCE_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/zumy/coop_slam_workspace/build
+CMAKE_BINARY_DIR = /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build
 
 # Utility rule file for std_msgs_generate_messages_cpp.
 
@@ -56,10 +56,10 @@ odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/build: std_msgs_gen
 .PHONY : odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/build
 
 odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/clean:
-	cd /home/zumy/coop_slam_workspace/build/odroid_machine && $(CMAKE_COMMAND) -P CMakeFiles/std_msgs_generate_messages_cpp.dir/cmake_clean.cmake
+	cd /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine && $(CMAKE_COMMAND) -P CMakeFiles/std_msgs_generate_messages_cpp.dir/cmake_clean.cmake
 .PHONY : odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/clean
 
 odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/depend:
-	cd /home/zumy/coop_slam_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/zumy/coop_slam_workspace/src /home/zumy/coop_slam_workspace/src/odroid_machine /home/zumy/coop_slam_workspace/build /home/zumy/coop_slam_workspace/build/odroid_machine /home/zumy/coop_slam_workspace/build/odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/src /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/src/odroid_machine /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine /home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/coop_slam_workspace/build/odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : odroid_machine/CMakeFiles/std_msgs_generate_messages_cpp.dir/depend
 
