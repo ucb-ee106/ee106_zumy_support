@@ -1,0 +1,3 @@
+[submodule "zumy_ros/src/ros_zumy"]
+	path = zumy_ros/src/ros_zumy
+	url = https://github.com/abuchan/ros_zumy.git
