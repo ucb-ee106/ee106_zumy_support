@@ -43,7 +43,7 @@ class Zumy:
         
         self.m_right = Motor(a1, a2)
         self.m_left = Motor(b1, b2)
-        self.an = AnalogIn(self.mbed, p20)
+        self.an = AnalogIn(self.mbed, p15)
         self.imu_vars = [RPCVariable(self.mbed,name) for name in imu_names]
         self.enc_vars = [RPCVariable(self.mbed,name) for name in enc_names]
         self.rlock=threading.Lock()
@@ -65,9 +65,7 @@ class Zumy:
         except SerialException:
           pass
         self.rlock.release()
-        volt=ain*(4.99+15.8) / 4.99
-        print("Ain is " + str(ain))
-        print("volt is " + str(volt))
+        volt=ain*(100+200) / (100)
         return volt
 
     def read_enc(self):
