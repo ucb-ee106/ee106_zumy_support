@@ -1,5 +1,5 @@
 <launch>
-  <arg name="mname" default="odroid0" />
+  <arg name="mname" default="zumyX" />
   
   <include file="$(find odroid_machine)/launch/odroid_machine.launch">
     <arg name="mname" value="$(arg mname)" />
