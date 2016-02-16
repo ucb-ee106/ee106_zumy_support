@@ -5,7 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from threading import Condition
 from zumy import Zumy
-from std_msgs.msg import String,Header,Int16,Float32
+from std_msgs.msg import String,Header,Int32,Float32
 from sensor_msgs.msg import Imu
 
 import socket,time
@@ -23,8 +23,8 @@ class ZumyROS:
     #publishers
     self.heartBeat = rospy.Publisher('heartBeat', String, queue_size=5)
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
-    self.r_enc_pub = rospy.Publisher('r_enc', Int16, queue_size = 5)
-    self.l_enc_pub = rospy.Publisher('l_enc', Int16, queue_size = 5)
+    self.r_enc_pub = rospy.Publisher('r_enc', Int32, queue_size = 5)
+    self.l_enc_pub = rospy.Publisher('l_enc', Int32, queue_size = 5)
     self.imu_count = 0
 
     self.batt_pub = rospy.Publisher('Batt',Float32,queue_size = 5)
@@ -58,7 +58,7 @@ class ZumyROS:
       imu_msg.angular_velocity.z = 3.14 / 180.0 * imu_data[5]
       self.imu_pub.publish(imu_msg)
       
-      enc_msg = Int16()
+      enc_msg = Int32()
       enc_msg.data = enc_data[0]
       self.r_enc_pub.publish(enc_msg)
       enc_msg.data = enc_data[1]
