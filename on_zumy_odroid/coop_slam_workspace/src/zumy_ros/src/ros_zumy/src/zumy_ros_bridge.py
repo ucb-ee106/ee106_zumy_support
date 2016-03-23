@@ -5,7 +5,7 @@ import rospy
 from geometry_msgs.msg import Twist
 from threading import Condition
 from zumy import Zumy
-from std_msgs.msg import String,Header,Int32,Float32
+from std_msgs.msg import String,Header,Int32,Float32,Bool
 from sensor_msgs.msg import Imu
 
 import socket,time
@@ -16,6 +16,7 @@ class ZumyROS:
     rospy.init_node('zumy_ros')
     self.cmd = (0,0)
     rospy.Subscriber('cmd_vel', Twist, self.cmd_callback,queue_size=1)
+    rospy.Subscriber('enable', Bool, self.enable_callback,queue_size=1)
     self.lock = Condition()
     self.rate = rospy.Rate(30.0)
     self.name = socket.gethostname()
@@ -39,6 +40,14 @@ class ZumyROS:
     self.lock.acquire()
     self.cmd = (l,r)
     self.lock.release()
+
+  def enable_callback(self,msg):
+    #if str(msg.data) == "data: True": #if msg is true
+    
+    if msg.data:
+      self.zumy.enable()
+    else:
+      self.zumy.disable()
 
   def run(self):
     while not rospy.is_shutdown():

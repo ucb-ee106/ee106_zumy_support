@@ -48,12 +48,15 @@ class Zumy:
         self.enc_vars = [RPCVariable(self.mbed,name) for name in enc_names]
         self.rlock=threading.Lock()
 
+        self.enabled = True #note it's enableD, to avoid namespace collision with the function 'enable'
+
     def cmd(self, left, right):
         self.rlock.acquire()
 	      # As of Rev. F, positive command is sent to both left and right
         try:
-          self.m_left.cmd(left)
-          self.m_right.cmd(right)
+          if self.enabled: #don't do anything if i'm disabled
+            self.m_left.cmd(left)
+            self.m_right.cmd(right)
         except SerialException:
           pass
         self.rlock.release()
@@ -85,6 +88,17 @@ class Zumy:
         pass
       self.rlock.release()
       return rval
+
+    def enable(self):
+      #disable the zumy.
+      self.enabled = True
+
+
+    def disable(self):
+      #first, stop the zumy.
+      self.cmd(0,0)
+      #second, disable the zumy flag.
+      self.enabled = False
 
 if __name__ == '__main__':
     z=Zumy()
