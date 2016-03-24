@@ -13,23 +13,26 @@ class GUI:
         self.master = master
         master.title("A simple GUI")
 
-        self.label = Label(master, text="Zumy Control GUI \n Press the 'x' to stop\n")
-        self.label.pack()
+        self.label = Label(master, text="Zumy Control GUI \n Press the 'x' to stop\n").grid(row=0,column=0)
+        #self.label.pack()
 
         self.robot_state_label = Label(master,text='Robot is enabled')
-        self.robot_state_label.pack()
+        self.robot_state_label.grid(row=2,column=1)
+        #self.robot_state_label.pack()
 
         self.voltage = 0
         self.voltage_label = Label(master,text = "VBatt = " + str(self.voltage))
-        self.voltage_label.pack()
+        self.voltage_label.grid(row=3,column=1)
+        #self.voltage_label.pack()
 
         print("Warning: Robot starts enabled")
         self.enable_button = Button(master, text="Disable", command=self.change_enable_state)
+        self.enable_button. grid(row=2,column=0)
         self.enabled = True
-        self.enable_button.pack()
+        #self.enable_button.pack()
 
-        self.close_button = Button(master, text="ESTOP", command=self.estop,bg='red')
-        self.close_button.pack()
+        self.close_button = Button(master, text="ESTOP", command=self.estop,bg='red').grid(row=3,column=0)
+        #self.close_button.pack()
 
         #ROS stuff
         rospy.init_node('base_GUI')
