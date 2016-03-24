@@ -6,6 +6,8 @@ import rospy
 import time
 from std_msgs.msg import String,Bool,Float32
 
+check_time = time.time() #timer used so that the watchdog doesn't get published at an insane rate.
+
 class GUI:
     def __init__(self, master):
 
@@ -14,6 +16,12 @@ class GUI:
         rospy.init_node('base_GUI')
         self.robot = rospy.get_param('~mname') #private value, but I need to know which robot i'm controlling.
         #self.robot = 'zumy7a'
+        
+        if rospy.has_param("~timeout"):
+            self.timeout = rospy.get_param('~timeout') #private value
+        else:
+            self.timeout = 2 #Length of watchdog timer in seconds, defaults to 2 sec.
+        
         master.title(self.robot)
 
         self.label = Label(master, text="Ctrl-c in the launch window to stop").grid(row=1,column=0)
@@ -24,6 +32,11 @@ class GUI:
         self.voltage = 0
         self.voltage_label = Label(master,text = "VBatt = " + str(self.voltage))
         self.voltage_label.grid(row=2,column=1)
+
+
+        self.last_heard_label = Label(master,text = "Last Heard = Never")
+        self.last_heard_label.grid(row=3,column = 1)
+
 
         self.enable_button = Button(master, text="Disable", command=self.change_enable_state)
         self.enable_button. grid(row=2,column=0)
@@ -40,6 +53,8 @@ class GUI:
         self.zumy_voltage = rospy.Subscriber('/'+self.robot+'/Batt',Float32,self.voltage_callback,queue_size = 1)
 
         self.last_heard = time.time()
+
+
 
     def change_enable_state(self):
         if self.enabled:
@@ -64,6 +79,15 @@ class GUI:
     def callback(self,msg):
         self.last_heard = time.time()
 
+    def last_heard_text(self):
+        dt_ms = int(1000*(time.time() - self.last_heard))
+        if dt_ms < 1000:
+            self.last_heard_label["text"] = "Last Heard (ms):   " + '{0:04d}'.format(dt_ms)
+        else:
+            self.last_heard_label["text"] = "Last Heard (ms):  > 1000"
+
+
+
     def voltage_callback(self,msg):
         self.voltage = float(msg.data)
         self.voltage_label.config(text = "VBatt = " + ("%.2f" % round(self.voltage,2)) + " V" )
@@ -76,7 +100,17 @@ def check():
     
     if not rospy.is_shutdown():  #so if rospy is shutdown (say, ctrl-c), the window gets closed too.
         my_gui.last_heard_text()
+        
+        global check_time
+
+        if  (check_time + .25) < time.time():
+            my_gui.heartbeat_pub.publish(String("Foo")) #publish the computer's watchdog
+            check_time = time.time()
+
+
         root.after(50, check) # 250 stands for 250 ms.
+        
+        
 
 
         
