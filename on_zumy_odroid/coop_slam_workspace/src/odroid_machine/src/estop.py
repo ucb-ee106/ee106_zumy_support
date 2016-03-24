@@ -9,12 +9,14 @@ from std_msgs.msg import String,Bool,Float32
 class GUI:
     def __init__(self, master):
 
-        #GUI Stuff
         self.master = master
-        master.title("A simple GUI")
 
         self.label = Label(master, text="Zumy Control GUI \n Press the 'x' to stop\n").grid(row=0,column=0)
         #self.label.pack()
+        rospy.init_node('base_GUI')
+        self.robot = rospy.get_param('~mname') #private value, but I need to know which robot i'm controlling.
+        #self.robot = 'zumy7a'
+        master.title(self.robot)
 
         self.robot_state_label = Label(master,text='Robot is enabled')
         self.robot_state_label.grid(row=2,column=1)
@@ -35,12 +37,12 @@ class GUI:
         #self.close_button.pack()
 
         #ROS stuff
-        rospy.init_node('base_GUI')
+
 
         self.heartbeat_pub = rospy.Publisher('/base_computer',String,queue_size=1) #/base_computer topic, the global watchdog.  May want to investigate what happens when there moer than one computer and more than one zumy
-        self.zumy_heatbeat = rospy.Subscriber('/zumy7a/heartBeat',String,self.callback,queue_size = 1)
-        self.zumy_enable = rospy.Publisher('zumy7a/enable',Bool,queue_size = 1) #The GUI actuates the publish topic.
-        self.zumy_voltage = rospy.Subscriber('/zumy7a/Batt',Float32,self.voltage_callback,queue_size = 1)
+        self.zumy_heartbeat = rospy.Subscriber('/' + self.robot + '/heartBeat',String,self.callback,queue_size = 1)
+        self.zumy_enable = rospy.Publisher('/' + self.robot + '/enable',Bool,queue_size = 1) #The GUI actuates the publish topic.
+        self.zumy_voltage = rospy.Subscriber('/'+self.robot+'/Batt',Float32,self.voltage_callback,queue_size = 1)
 
         self.last_heard = time.time()
 
