@@ -78,9 +78,16 @@ class GUI:
 
 def check():
     #force Tkinter to do something every 250ms... which is useful so it'll notice ctr-c in a reasonable timeframe
-    root.after(250, check) # 250 stands for 250 ms.
-    my_gui.heartbeat_pub.publish(String("Foo")) #publish the computer's watchdog
-    #
+    
+    if not rospy.is_shutdown():  #so if rospy is shutdown (say, ctrl-c), the window gets closed too.
+        my_gui.last_heard_text()
+        root.after(50, check) # 250 stands for 250 ms.
+
+
+        
+        #
+    else:
+        root.destroy()
 
 
 if __name__ == '__main__':
