@@ -17,9 +17,18 @@ class ZumyROS:
     self.cmd = (0,0)
     rospy.Subscriber('cmd_vel', Twist, self.cmd_callback,queue_size=1)
     rospy.Subscriber('enable', Bool, self.enable_callback,queue_size=1)
+
+    rospy.Subscriber('/base_computer',String,self.watchdog_callback,queue_size=1) #/base_computer topic, the global watchdog.  May want to investigate what happens when there moer than one computer and more than one zumy
+
     self.lock = Condition()
     self.rate = rospy.Rate(30.0)
     self.name = socket.gethostname()
+
+
+    if rospy.has_param("~timeout"):
+        self.timeout = rospy.get_param('~timeout') #private value
+    else:
+      self.timeout = 2 #Length of watchdog timer in seconds, defaults to 2 sec.
     
     #publishers
     self.heartBeat = rospy.Publisher('heartBeat', String, queue_size=5)
@@ -29,6 +38,9 @@ class ZumyROS:
     self.imu_count = 0
 
     self.batt_pub = rospy.Publisher('Batt',Float32,queue_size = 5)
+
+    self.last_message_at = time.time()
+    self.watchdog = True 
 
   def cmd_callback(self, msg):
     lv = 0.6
@@ -42,12 +54,20 @@ class ZumyROS:
     self.lock.release()
 
   def enable_callback(self,msg):
-    #if str(msg.data) == "data: True": #if msg is true
-    
-    if msg.data:
+    #enable or disable myself based on the content of the message.   
+    if msg.data and self.watchdog:
       self.zumy.enable()
     else:
       self.zumy.disable()
+    #do NOT update the watchdog, since the watchdog should do it itself.
+    #If i'm told to go but the host's watchdog is down, something's very wrong, and i won't be doing much
+
+  def watchdog_callback(self,msg):
+    #update the last time i got a messag!
+    self.last_message_at = time.time()
+    self.watchdog = True
+
+
 
   def run(self):
     while not rospy.is_shutdown():
@@ -75,11 +95,16 @@ class ZumyROS:
 
       v_bat = self.zumy.read_voltage()
       self.batt_pub.publish(v_bat)
-      self.heartBeat.publish("I am alive")
+      self.heartBeat.publish("I am alive, enabled is " + str(self.zumy.enabled) + " time is " + str(self.last_message_at))
       self.rate.sleep()
 
-    # If shutdown, turn off motors
-    self.zumy.cmd(0,0)
+      if time.time() > (self.last_message_at + self.timeout): #i've gone too long without seeing the watchdog.
+        self.watchdog = False
+        self.zumy.disable()
+
+
+    # If shutdown, turn off motors & disable anything else.
+    self.zumy.disable()
 
 if __name__ == '__main__':
   zr = ZumyROS()
