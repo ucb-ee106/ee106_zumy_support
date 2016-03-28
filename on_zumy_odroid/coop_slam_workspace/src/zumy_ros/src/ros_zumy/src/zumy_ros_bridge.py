@@ -95,12 +95,13 @@ class ZumyROS:
 
       v_bat = self.zumy.read_voltage()
       self.batt_pub.publish(v_bat)
-      self.heartBeat.publish("I am alive, enabled is " + str(self.zumy.enabled) + " time is " + str(self.last_message_at))
+      self.heartBeat.publish("Alive, enabled is: " + str(self.zumy.enabled) + " Battery unsafe is: " + str(self.zumy.battery_unsafe()))
       self.rate.sleep()
 
       if time.time() > (self.last_message_at + self.timeout): #i've gone too long without seeing the watchdog.
         self.watchdog = False
         self.zumy.disable()
+      self.zumy.battery_protection() # a function that needs to be called with some regularity.
 
 
     # If shutdown, turn off motors & disable anything else.

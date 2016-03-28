@@ -44,6 +44,8 @@ class GUI:
 
         self.close_button = Button(master, text="ESTOP", command=self.estop,bg='red').grid(row=3,column=0)
 
+        self.battery_unsafe = False
+
         #ROS stuff
 
 
@@ -57,17 +59,23 @@ class GUI:
 
 
     def change_enable_state(self):
-        if self.enabled:
+        if self.battery_unsafe:
+            self.enabled = False
+            self.enable_button["text"] = "  "
+            self.robot_state_label.config(text = "Robot is disabled \n CHARGE YOUR BATTERY")
+        elif self.enabled:
             self.enabled = False
             #Robot is disabled, the button is to enable
             self.enable_button["text"] = "Enable"
             self.robot_state_label.config(text = "Robot is disabled")
+            self.zumy_enable.publish(Bool(self.enabled)) #Change enabled state
         else:
             self.enabled = True
             #Robot is enabled, the button will disable
             self.enable_button["text"] = "Disable"
             self.robot_state_label.config(text = "Robot is enabled")
-        self.zumy_enable.publish(Bool(self.enabled)) #Change enabled state
+            self.zumy_enable.publish(Bool(self.enabled)) #Change enabled state
+
 
     def estop(self):
         self.zumy_enable.publish(Bool(False)) #Bool is the ROS bool.  Disable the robot, please.
@@ -78,6 +86,14 @@ class GUI:
 
     def callback(self,msg):
         self.last_heard = time.time()
+        #strip out the last few characters, which corrispond to battery saftey
+        string = str(msg)
+        string = string[-4:]
+        if string == "True":
+            self.battery_unsafe = True
+            self.change_enable_state()
+
+
 
     def last_heard_text(self):
         dt_ms = int(1000*(time.time() - self.last_heard))

@@ -9,6 +9,7 @@ from mbedrpc import *
 import threading
 import time
 from serial import SerialException
+import numpy as np #just so I can use the np.mean function.  Nothing strange going on here.
 
 class Motor:
     def __init__(self, a1, a2):
@@ -50,6 +51,10 @@ class Zumy:
 
         self.enabled = True #note it's enableD, to avoid namespace collision with the function 'enable'
 
+        self.volts = [8.0 for i in range(0,5)] #5 element long moving average filter, initialized to 8 volts  (it'll quickly change)
+
+        self.battery_lock = False #a boolean to tell me if my battery ever dipped below the battery threshold.
+
     def cmd(self, left, right):
         self.rlock.acquire()
 	      # As of Rev. F, positive command is sent to both left and right
@@ -69,6 +74,8 @@ class Zumy:
           pass
         self.rlock.release()
         volt=ain*(100+200) / (100)
+        self.volts.insert(0,volt)  #add this data to the moving average filter
+        self.volts.pop() #remove the last element
         return volt
 
     def read_enc(self):
@@ -90,8 +97,9 @@ class Zumy:
       return rval
 
     def enable(self):
-      #disable the zumy.
-      self.enabled = True
+      #enable the zumy, but only if my battery hasn't been unhappy.
+      if not self.battery_lock:
+	      self.enabled = True
 
 
     def disable(self):
@@ -99,6 +107,19 @@ class Zumy:
       self.cmd(0,0)
       #second, disable the zumy flag.
       self.enabled = False
+
+    def battery_protection(self):
+    	#a function that needs to be called with some regularity
+    	#disables the robot if the battery voltage is very low
+    	if np.mean(self.volts) < 6.6: #6.6 volts--> 3.3V per cell.
+    		#averages over the last 5 battery measurements, because loading effects are :(
+
+    		self.disable()
+    		self.battery_lock = True
+    
+    def battery_unsafe(self):
+    	#return true if i think my battery is unsafe.
+    	return self.battery_lock
 
 if __name__ == '__main__':
     z=Zumy()
