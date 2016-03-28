@@ -59,6 +59,7 @@ class ZumyROS:
       self.zumy.enable()
     else:
       self.zumy.disable()
+      self.cmd = (0,0) #turn the motors off
     #do NOT update the watchdog, since the watchdog should do it itself.
     #If i'm told to go but the host's watchdog is down, something's very wrong, and i won't be doing much
 
