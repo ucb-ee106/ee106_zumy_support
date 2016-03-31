@@ -1,10 +1,10 @@
 #include "mbed.h"
-#include "SerialRPCInterface.h"
+#include "mbed_rpc.h"
 #include "MPU6050.h"
 #include "QEI.h"
+//SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
+Serial pc(USBTX, USBRX); // tx, rx
 
-SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
-//Serial pc(USBTX, USBRX); // tx, rx
 
 float accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z;
 int r_enc, l_enc;
@@ -28,6 +28,32 @@ DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
 int main() {
+    char rpc_input_buf[256];
+    char rpc_output_buf[1024];
+    //copy-pasta from 192, and remove the parts I don't need.
+
+    pc.baud(115200);
+
+    pc.printf("Hello world! \n\r");
+    test = 1;
+    wait_ms(100);
+    test = 0;
+    wait_ms(100);
+    // receive commands, and send back the responses
+    while(1) 
+    {
+        pc.gets(rpc_input_buf, 256);
+        RPC::call(rpc_input_buf, rpc_output_buf);
+        pc.printf("%s\n\r>>> ", rpc_output_buf);
+        test = !test;
+        wait_ms(100);
+
+        // Handle the encoders, used for testing if rpc variable reads work
+        r_enc=r_wheel.getPulses();
+        l_enc=l_wheel.getPulses();
+    }
+
+    /*    
     init_done = 0;
     imu_good = 0;
     main_loop = 0;
@@ -90,4 +116,8 @@ int main() {
             }
         }
     }
+    */
 }
+/*
+
+*/
