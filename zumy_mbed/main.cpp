@@ -2,9 +2,10 @@
 #include "mbed_rpc.h"
 #include "MPU6050.h"
 #include "QEI.h"
+#include "MODSERIAL.h"
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
-Serial pc(USBTX, USBRX); // tx, rx
-
+MODSERIAL pc(USBTX, USBRX); // tx, rx
+//Serial pc(USBTX,USBRX);
 
 float accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z;
 int r_enc, l_enc;
@@ -27,12 +28,52 @@ DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
+/*
+void rxCallback(MODSERIAL_IRQ_INFO *q) {
+    MODSERIAL *serial = q->serial;
+
+    //#ifndef __CC_ARM
+    // HACK(nikita): Calling puts here does not work in Keil (why?)
+    //if (USE_CR) {
+        if (serial->rxGetLastChar() == '\r') {
+            serial->putc('\r');
+            serial->putc('\n');
+        } else if (serial->rxGetLastChar() == '\n') {
+            // nothing
+        } else {
+            serial->putc(serial->rxGetLastChar());
+        }
+    //} else {
+    //    serial->putc(serial->rxGetLastChar());
+   // }
+    //#endif
+
+    /*
+    if (USE_CR) {
+        if (serial->rxGetLastChar() == '\n') {
+            q->rxDiscardLastChar();
+        }
+    }
+
+    if (serial->rxGetLastChar() == (USE_CR ? '\r' : '\n')) {
+        if (serial == &usb) {
+            telemetryThread->signal_set(SIGNAL_USB);
+        } else if (serial == &bluetooth) {
+            telemetryThread->signal_set(SIGNAL_BLUETOOTH);
+        }
+    }
+
+}
+*/
+
 int main() {
     char rpc_input_buf[256];
     char rpc_output_buf[1024];
     //copy-pasta from 192, and remove the parts I don't need.
 
     pc.baud(115200);
+
+    //pc.attach(&rxCallback, MODSERIAL::RxIrq);
 
     pc.printf("Hello world! \n\r");
     test = 1;
