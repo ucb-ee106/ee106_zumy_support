@@ -3,6 +3,8 @@
 #include "MPU6050.h"
 #include "QEI.h"
 #include "MODSERIAL.h"
+//#include "rtos.h"
+
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
 //Serial pc(USBTX,USBRX);
@@ -84,6 +86,7 @@ int main() {
     while(1) 
     {
         pc.gets(rpc_input_buf, 256);
+        pc.printf("input_buf is %s \n\r",rpc_input_buf);
         RPC::call(rpc_input_buf, rpc_output_buf);
         pc.printf("%s\n\r>>> ", rpc_output_buf);
         test = !test;
@@ -159,6 +162,21 @@ int main() {
     }
     */
 }
-/*
 
-*/
+
+void add(Arguments* input, Reply *output);
+//Attach it to an RPC object.
+RPCFunction rpc_add(&add, "add");
+void add(Arguments* input, Reply *output)
+{
+    //one argument: near or far.
+
+    //linescan_query_sensor(linescan_buf);
+
+    //copy linescan_buff into new array, so it doesn't get overwritten.
+
+    int arg0 = input->getArg<int>();
+    int arg1 = input->getArg<int>();
+
+    output->putData(arg0+arg1);
+}
