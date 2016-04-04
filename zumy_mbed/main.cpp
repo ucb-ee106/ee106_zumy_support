@@ -3,7 +3,7 @@
 #include "MPU6050.h"
 #include "QEI.h"
 #include "MODSERIAL.h"
-//#include "rtos.h"
+#include "rtos.h"
 
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
@@ -30,21 +30,41 @@ DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
-/*
+
+//copy_paste from 192.  gets when using carriange returns
+int gets_cr(MODSERIAL &src, char *s, int max) {
+    int counter = 0;
+    char c = 0;
+    while(src.readable() && c != '\r') {
+        c = src.getc();
+        pc.printf("%c \n\r",c);
+        *(s++) = c;
+        counter++;
+        if (counter == max-1) break;
+    }
+    *(s++) = '\0';
+    return counter;
+}
+
+
 void rxCallback(MODSERIAL_IRQ_INFO *q) {
     MODSERIAL *serial = q->serial;
 
     //#ifndef __CC_ARM
     // HACK(nikita): Calling puts here does not work in Keil (why?)
     //if (USE_CR) {
-        if (serial->rxGetLastChar() == '\r') {
-            serial->putc('\r');
-            serial->putc('\n');
-        } else if (serial->rxGetLastChar() == '\n') {
+    //pc.printf("fo \n\r");
+    char c = serial->rxGetLastChar();
+    //pc.printf("%c \n\r",c);
+    //    if (serial->rxGetLastChar() == '\r') {
+    //        serial->putc('\r');
+    //        serial->putc('\n');
+    //    } else if (serial->rxGetLastChar() == '\n') {
             // nothing
-        } else {
+    //    } else {
             serial->putc(serial->rxGetLastChar());
-        }
+            serial->putc(serial->rxGetLastChar());
+    //    }
     //} else {
     //    serial->putc(serial->rxGetLastChar());
    // }
@@ -64,16 +84,27 @@ void rxCallback(MODSERIAL_IRQ_INFO *q) {
             telemetryThread->signal_set(SIGNAL_BLUETOOTH);
         }
     }
-
+    */
 }
-*/
+
+//motor motor_left;
+void led_blink_periodic(void const *args) {
+    // Toggle the green LED when this function is called.
+    test = !test;
+}
 
 int main() {
+
+    RtosTimer ledBlinkTimer(led_blink_periodic);
+    ledBlinkTimer.start(1000);
+
     char rpc_input_buf[256];
     char rpc_output_buf[1024];
     //copy-pasta from 192, and remove the parts I don't need.
 
     pc.baud(115200);
+    pc.attach(&rxCallback, MODSERIAL::RxIrq);
+
 
     //pc.attach(&rxCallback, MODSERIAL::RxIrq);
 
@@ -86,10 +117,10 @@ int main() {
     while(1) 
     {
         pc.gets(rpc_input_buf, 256);
+        //gets_cr(pc,rpc_input_buf,256);
         pc.printf("input_buf is %s \n\r",rpc_input_buf);
         RPC::call(rpc_input_buf, rpc_output_buf);
         pc.printf("%s\n\r>>> ", rpc_output_buf);
-        test = !test;
         wait_ms(100);
 
         // Handle the encoders, used for testing if rpc variable reads work
@@ -162,6 +193,7 @@ int main() {
     }
     */
 }
+
 
 
 void add(Arguments* input, Reply *output);
