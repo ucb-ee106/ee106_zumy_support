@@ -40,8 +40,27 @@ Arguments::Arguments(const char* rqs) {
     if (p == NULL) return;
 
     // Method Name
-    p = search_arg(&method_name, p, ' ');
-    if (p == NULL) return;
+    char* p2 = search_arg(&method_name, p, ' ');
+    //use p2 because i'll possibly need to search twice.
+    if (p2 == NULL) 
+    {
+        //If i can't find an argument with space, then try the null character.  
+        p2 = search_arg(&method_name,p,'\r');
+        if(p2 == NULL)
+        {
+            //if i can't find one will the null character either, return
+            return;
+        }
+        else
+        {
+            //else, use it!
+            p = p2;
+        }
+    }
+    else
+    {
+        p = p2;
+    }
 
     // Arguments
     while (true) {
@@ -57,7 +76,7 @@ Arguments::Arguments(const char* rqs) {
 char* Arguments::search_arg(char **arg, char *p, char next_sep) {
     char *s = p;
     while (true) {
-        if ((*p == '/') || (*p == ' ') || (*p == '\n') || (*p == '\0')) break;
+        if ((*p == '/') || (*p == ' ') || (*p == '\n') || (*p == '\0') || (*p == '\r')) break;
         p++;
     }
     if (p == s) return NULL;
