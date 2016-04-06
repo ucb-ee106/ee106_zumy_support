@@ -22,8 +22,8 @@ RPCVariable<float> rpc_gryo_y(&gyro_y, "gyro_y");
 RPCVariable<float> rpc_gryo_z(&gyro_z, "gyro_z");
 RPCVariable<int>   rpc_r_enc(&r_enc, "r_enc");
 RPCVariable<int>   rpc_l_enc(&l_enc, "l_enc");
-QEI l_wheel (p29, p30, NC, 624);
-QEI r_wheel (p11, p12, NC, 624);
+//QEI l_wheel (p29, p30, NC, 624);
+//QEI r_wheel (p11, p12, NC, 624);
 
 MPU6050 mpu6050;
 
@@ -32,8 +32,8 @@ DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
-Track track_left(MOTOR_1_1,MOTOR_1_2,p29,p30,624);
-Track track_right(MOTOR_2_1,MOTOR_2_2,p11,p12,624);
+Track* track_right;
+Track* track_left;
 
 
 //copy_paste from 192.  gets when using carriange returns
@@ -61,7 +61,7 @@ void led_blink_periodic(void const *args) {
 }
 
 int main() {
-    track_right.invert(true); //I start inverted.
+
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
     ledBlinkTimer.start(1000);
@@ -80,6 +80,16 @@ int main() {
     test = 0;
     wait_ms(100);
     // receive commands, and send back the responses
+
+    Track track_left_ = Track(MOTOR_1_1,MOTOR_1_2,p29,p30,624);
+    Track track_right_ = Track(MOTOR_2_1,MOTOR_2_2,p11,p12,624); //these both need to be instantiaed inside main, not statically above.
+    track_left = &track_left_;
+    track_right = &track_right_;
+
+    track_right -> invert(true); //I start inverted.
+
+    pc.printf("Tracks initialized \n\r");
+
     while(1) 
     {
         //pc.gets(rpc_input_buf, 256);
@@ -116,74 +126,12 @@ int main() {
         Thread::wait(100);
 
         // Handle the encoders, used for testing if rpc variable reads work
-        r_enc=r_wheel.getPulses();
-        l_enc=l_wheel.getPulses();
+        r_enc=track_right->get_position();
+        l_enc=track_left->get_position();
+
+        pc.printf("%f %f \n\r",track_right->get_speed(),track_left->get_speed());
     }
 
-    /*    
-    init_done = 0;
-    imu_good = 0;
-    main_loop = 0;
-    test = 0;
-    
-    //Set up I2C
-    i2c.frequency(400000);  // use fast (400 kHz) I2C
-    
-    volatile bool imu_ready = false;
-    
-    wait_ms(100);
-    
-    uint8_t whoami = mpu6050.readByte(MPU6050_ADDRESS, WHO_AM_I_MPU6050);
-    
-    if (whoami == 0x68) // WHO_AM_I should always be 0x68
-    {
-        mpu6050.MPU6050SelfTest(SelfTest);
-        if(SelfTest[0] < 1.0f && SelfTest[1] < 1.0f && SelfTest[2] < 1.0f && SelfTest[3] < 1.0f && SelfTest[4] < 1.0f && SelfTest[5] < 1.0f) {
-            mpu6050.resetMPU6050(); // Reset registers to default in preparation for device calibration
-            mpu6050.calibrateMPU6050(gyroBias, accelBias); // Calibrate gyro and accelerometers, load biases in bias registers  
-            mpu6050.initMPU6050();
-            mpu6050.getAres();
-            mpu6050.getGres();
-            imu_ready = true;
-            imu_good = 1;
-        }
-    }
-    test = 1;
-    init_done = 1;
-
-    uint8_t loop_count = 10;
-    while(1) {
-        wait_ms(10);
-        
-        // Handle the encoders
-        r_enc=r_wheel.getPulses();
-        l_enc=l_wheel.getPulses();
-        //pc.printf("Pulses are: %i, %i\r\n", l_enc,r_enc);
-        
-        if (!(--loop_count)) {
-            loop_count = 100;
-            main_loop = !main_loop;
-        }
-        
-        if (imu_ready) {
-            
-            if(mpu6050.readByte(MPU6050_ADDRESS, INT_STATUS) & 0x01) {  // check if data ready interrupt
-                mpu6050.readAccelData(accelCount);  // Read the x/y/z adc values
-                mpu6050.readGyroData(gyroCount);  // Read the x/y/z adc values
-
-                // Now we'll calculate the accleration value into actual g's
-                accel_x = (float)accelCount[0]*aRes - accelBias[0];  // get actual g value, this depends on scale being set
-                accel_y = (float)accelCount[1]*aRes - accelBias[1];   
-                accel_z = (float)accelCount[2]*aRes - accelBias[2];  
-               
-                // Calculate the gyro value into actual degrees per second
-                gyro_x = (float)gyroCount[0]*gRes - gyroBias[0];  // get actual gyro value, this depends on scale being set
-                gyro_y = (float)gyroCount[1]*gRes - gyroBias[1];  
-                gyro_z = (float)gyroCount[2]*gRes - gyroBias[2];
-            }
-        }
-    }
-    */
 }
 
 
@@ -204,9 +152,12 @@ void sm(Arguments* input, Reply *output)
 
     //pc.printf("arg0 is %f \n\r",arg0);
     //pc.printf("arg1 is %f \n\r",arg1);
+    track_left -> set_auto(true);
+    track_right -> set_auto(true);
 
-    track_left.manual_speed(arg0);
-    track_right.manual_speed(arg1);
+
+    track_left->set_velocity_setpoint(arg0);
+    track_right->set_velocity_setpoint(arg1);
 
 }
 
@@ -221,12 +172,32 @@ void spd(Arguments* input, Reply *output)
 
     //copy linescan_buff into new array, so it doesn't get overwritten.
 
-    pc.printf("L is %i \n\r",track_left.get_position());
-    pc.printf("R is %i \n\r",track_right.get_position());
+    pc.printf("L is %i \n\r",track_left->get_position());
+    pc.printf("R is %i \n\r",track_right->get_position());
 
 
 
 
-    output->putData(track_left.get_speed());
-    output->putData(track_right.get_speed());
+    output->putData(track_left->get_speed());
+    output->putData(track_right->get_speed());
+}
+
+
+void pid(Arguments* input, Reply *output);
+//Attach it to an RPC object.
+RPCFunction rpc_pid(&pid, "pid");
+void pid(Arguments* input, Reply *output)
+{
+    //one argument: near or far.
+
+    //linescan_query_sensor(linescan_buf);
+
+    //copy linescan_buff into new array, so it doesn't get overwritten.
+
+    float kp = input->getArg<float>();
+    float ki = input->getArg<float>();
+    float kd = input->getArg<float>();
+
+    track_right->set_gains(kp,ki,kd);
+    track_left->set_gains(kp,ki,kd);
 }
