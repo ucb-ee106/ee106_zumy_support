@@ -3,8 +3,6 @@
 
 #include "mbed.h"
 #include "rtos.h"
-#include "QEI.h"
-#include "pindefs.h"
 
 class Motor {
 
