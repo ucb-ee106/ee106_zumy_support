@@ -6,6 +6,7 @@
 #include "QEI.h"
 #include "pindefs.h"
 #include "Motor.h"
+#include "MovingAverage.h"
 
 
 class Track{
@@ -15,10 +16,15 @@ private:
 
 	QEI enc; //the encoder
 	Motor motor; //the motor
-
+	Ticker controller;
 	bool closed_loop;
+    MovingAverage encoder_changes;
+    int old_position; //tracks the last encoder position, for use with dTicks
 
 	//PID controller; //the PID controller
+
+	void execute_timeout(); //internal control loop
+
 
 
 public:
@@ -32,6 +38,7 @@ public:
 	void set_gains(float kp, float ki, float kd); //set the gains of the PID velocity controller.  
 
 	Track(PinName motor_1, PinName motor_2, PinName enc_A, PinName enc_B, int pulses_per_rev); //construct the track object.
+
 };
 
 

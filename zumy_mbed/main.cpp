@@ -5,7 +5,7 @@
 #include "MODSERIAL.h"
 #include "rtos.h"
 #include "pindefs.h"
-#include "Motor.h"
+#include "Track.h"
 
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
@@ -32,8 +32,8 @@ DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
-Motor motor_left(MOTOR_1_1,MOTOR_1_2);
-Motor motor_right(MOTOR_2_1,MOTOR_2_2);
+Track track_left(MOTOR_1_1,MOTOR_1_2,p29,p30,624);
+Track track_right(MOTOR_2_1,MOTOR_2_2,p11,p12,624);
 
 
 //copy_paste from 192.  gets when using carriange returns
@@ -63,17 +63,15 @@ void led_blink_periodic(void const *args) {
 int main() {
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(1000);
+    ledBlinkTimer.start(200);
 
     char rpc_input_buf[256];
     char rpc_output_buf[1024];
     //copy-pasta from 192, and remove the parts I don't need.
 
     pc.baud(115200);
-    pc.attach(&rxCallback, MODSERIAL::RxIrq);
 
 
-    //pc.attach(&rxCallback, MODSERIAL::RxIrq);
 
     pc.printf("Hello world! \n\r");
     test = 1;
@@ -83,12 +81,38 @@ int main() {
     // receive commands, and send back the responses
     while(1) 
     {
-        pc.gets(rpc_input_buf, 256);
-        //gets_cr(pc,rpc_input_buf,256);
-        pc.printf("input_buf is %s \n\r",rpc_input_buf);
+        //pc.gets(rpc_input_buf, 256);
+        gets_cr(pc,rpc_input_buf,256); //works around the ctrl-enter thing. nneed to append things with a space...
+        //pc.printf("input_buf is %sEND \n\r",rpc_input_buf);
+
+        /*
+
+        char* loc = &rpc_input_buf[0];
+        pc.printf("Mem addr is %i \n\r",loc);
+        for(int i = 0; i<20; i++)
+        {
+            pc.printf("%i.",*(loc+i));
+
+        }
+
+        */
+
+        //pc.printf("\n\r");
+        
+        //for(int i = 0; i<20; i++)
+        //{
+        //    pc.printf("%c.",*(loc+i));
+        //}
+
+        pc.printf("\n\r");
+        
+        //pc.printf("%i..\n\r",rpc_input_buf);
+        
+        //pc.printf(rpc_input_buf);
         RPC::call(rpc_input_buf, rpc_output_buf);
-        pc.printf("%s\n\r>>> ", rpc_output_buf);
-        wait_ms(100);
+
+        pc.printf("%s \n\r>>>", rpc_output_buf);
+        Thread::wait(100);
 
         // Handle the encoders, used for testing if rpc variable reads work
         r_enc=r_wheel.getPulses();
@@ -177,10 +201,31 @@ void sm(Arguments* input, Reply *output)
     float arg0 = input->getArg<float>();
     float arg1 = input->getArg<float>();
 
-    pc.printf("arg0 is %f \n\r",arg0);
-    pc.printf("arg1 is %f \n\r",arg1);
+    //pc.printf("arg0 is %f \n\r",arg0);
+    //pc.printf("arg1 is %f \n\r",arg1);
 
-    motor_left.pwm_speed(arg0);
-    motor_right.pwm_speed(arg1);
+    track_left.manual_speed(arg0);
+    track_right.manual_speed(arg1);
 
+}
+
+void spd(Arguments* input, Reply *output);
+//Attach it to an RPC object.
+RPCFunction rpc_spd(&spd, "spd");
+void spd(Arguments* input, Reply *output)
+{
+    //one argument: near or far.
+
+    //linescan_query_sensor(linescan_buf);
+
+    //copy linescan_buff into new array, so it doesn't get overwritten.
+
+    //pc.printf("arg0 is %f \n\r",arg0);
+    //pc.printf("arg1 is %f \n\r",arg1);
+
+
+
+
+    output->putData(track_left.get_speed());
+    output->putData(track_right.get_speed());
 }
