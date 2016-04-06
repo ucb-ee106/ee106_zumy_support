@@ -47,7 +47,7 @@ void Track::set_gains(float kp, float ki, float kd)
 
 void Track::execute_timeout()
 {
-	//called every 200 ms.  open question if it should be an RTOS timer.
+	//called every 2 ms.  open question if it should be an RTOS timer.
 	int pos = inverted*enc.getPulses();
 	encoder_changes.Insert(pos-old_position);
 	old_position = pos;
