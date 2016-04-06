@@ -129,7 +129,9 @@ int main() {
         r_enc=track_right->get_position();
         l_enc=track_left->get_position();
 
-        pc.printf("%f %f \n\r",track_right->get_speed(),track_left->get_speed());
+        pc.printf("Effort: %f %f \n\r",track_right->getPwm(),track_left->getPwm());
+        pc.printf("Speed: %f %f \n\r",track_right->get_speed(),track_left->get_speed());
+
     }
 
 }
