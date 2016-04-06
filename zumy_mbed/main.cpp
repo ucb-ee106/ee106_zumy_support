@@ -4,6 +4,8 @@
 #include "QEI.h"
 #include "MODSERIAL.h"
 #include "rtos.h"
+#include "pindefs.h"
+#include "Motor.h"
 
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
@@ -30,64 +32,29 @@ DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
+Motor motor_left(MOTOR_1_1,MOTOR_1_2);
+Motor motor_right(MOTOR_2_1,MOTOR_2_2);
+
 
 //copy_paste from 192.  gets when using carriange returns
 int gets_cr(MODSERIAL &src, char *s, int max) {
     int counter = 0;
     char c = 0;
-    while(src.readable() && c != '\r') {
+    while(c != '\r')//src.readable() && c != '\r') 
+    {
         c = src.getc();
-        pc.printf("%c \n\r",c);
+        //pc.printf("%c \n\r",c);
         *(s++) = c;
         counter++;
         if (counter == max-1) break;
     }
+    //*(s+1) = ' ';
     *(s++) = '\0';
+
     return counter;
 }
 
 
-void rxCallback(MODSERIAL_IRQ_INFO *q) {
-    MODSERIAL *serial = q->serial;
-
-    //#ifndef __CC_ARM
-    // HACK(nikita): Calling puts here does not work in Keil (why?)
-    //if (USE_CR) {
-    //pc.printf("fo \n\r");
-    char c = serial->rxGetLastChar();
-    //pc.printf("%c \n\r",c);
-    //    if (serial->rxGetLastChar() == '\r') {
-    //        serial->putc('\r');
-    //        serial->putc('\n');
-    //    } else if (serial->rxGetLastChar() == '\n') {
-            // nothing
-    //    } else {
-            serial->putc(serial->rxGetLastChar());
-            serial->putc(serial->rxGetLastChar());
-    //    }
-    //} else {
-    //    serial->putc(serial->rxGetLastChar());
-   // }
-    //#endif
-
-    /*
-    if (USE_CR) {
-        if (serial->rxGetLastChar() == '\n') {
-            q->rxDiscardLastChar();
-        }
-    }
-
-    if (serial->rxGetLastChar() == (USE_CR ? '\r' : '\n')) {
-        if (serial == &usb) {
-            telemetryThread->signal_set(SIGNAL_USB);
-        } else if (serial == &bluetooth) {
-            telemetryThread->signal_set(SIGNAL_BLUETOOTH);
-        }
-    }
-    */
-}
-
-//motor motor_left;
 void led_blink_periodic(void const *args) {
     // Toggle the green LED when this function is called.
     test = !test;
@@ -196,10 +163,10 @@ int main() {
 
 
 
-void add(Arguments* input, Reply *output);
+void sm(Arguments* input, Reply *output);
 //Attach it to an RPC object.
-RPCFunction rpc_add(&add, "add");
-void add(Arguments* input, Reply *output)
+RPCFunction rpc_sm(&sm, "sm");
+void sm(Arguments* input, Reply *output)
 {
     //one argument: near or far.
 
@@ -207,8 +174,13 @@ void add(Arguments* input, Reply *output)
 
     //copy linescan_buff into new array, so it doesn't get overwritten.
 
-    int arg0 = input->getArg<int>();
-    int arg1 = input->getArg<int>();
+    float arg0 = input->getArg<float>();
+    float arg1 = input->getArg<float>();
 
-    output->putData(arg0+arg1);
+    pc.printf("arg0 is %f \n\r",arg0);
+    pc.printf("arg1 is %f \n\r",arg1);
+
+    motor_left.pwm_speed(arg0);
+    motor_right.pwm_speed(arg1);
+
 }
