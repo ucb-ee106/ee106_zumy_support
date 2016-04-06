@@ -61,9 +61,10 @@ void led_blink_periodic(void const *args) {
 }
 
 int main() {
+    track_right.invert(true); //I start inverted.
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(200);
+    ledBlinkTimer.start(1000);
 
     char rpc_input_buf[256];
     char rpc_output_buf[1024];
@@ -220,8 +221,8 @@ void spd(Arguments* input, Reply *output)
 
     //copy linescan_buff into new array, so it doesn't get overwritten.
 
-    //pc.printf("arg0 is %f \n\r",arg0);
-    //pc.printf("arg1 is %f \n\r",arg1);
+    pc.printf("L is %i \n\r",track_left.get_position());
+    pc.printf("R is %i \n\r",track_right.get_position());
 
 
 
