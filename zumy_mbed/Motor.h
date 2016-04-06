@@ -10,35 +10,20 @@ class Motor {
 
 private:
 
-
-    //float setPoint;
-
-	PwmOut ead;  //connecto servo PWM @PTD4	//PwmOut ah;
-	PwmOut ebd;
+    //todo: drive-coast vs drive-brake
+	PwmOut xout_1;
+	PwmOut xout_2;
     
-    //esgencoder* enc;
-    //RtosTimer timer;
     float clamp(float input, float min, float max); //helper clamp functions
-    //void execute_control();
-
-    //static void wrap_execute_control(const void *motor);
-
     
 
 public:
-    //bool is_auto;
     float pwm_val;
 	void pwm_speed(float dutyCycle); //public only for emergency circumstances, please don't use regularly....
-    //void set_setpoint(float setSpeed); //intended speed that you want the motor to go @
-    //Motor(PinName A_H, PinName A_L, PinName B_H, PinName B_L,esgencoder* en);
-    Motor(PinName EAD_in, PinName EBD_in);
+    Motor(PinName xout_1_in, PinName xout_2_in);
     void brake(float value);
-    //float current();
-    //float enc_speed(); //returns encoder's speed!
-    //float get_setpoint();
-    //PID controller;
-    //void set_auto(bool val);
     bool is_inverted;  //deep, deep down, reverses motor direction.
+    //Useeful for drive trains where the bi-lateral symmetry across the robot means going positive on both motors results in the robot spinning.
 };
 
 #endif
