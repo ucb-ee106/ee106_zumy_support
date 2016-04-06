@@ -51,6 +51,7 @@ public:
 
 	float clamp(float input, float min, float max);
 
+	float getPwm();
 
 };
 
