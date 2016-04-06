@@ -100,19 +100,13 @@ void Motor::pwm_speed(float value)
         //negative because value is less than 1 here.
     }
 }
-/*
-void Motor::write_mosfets(float valAH,float valAL,float valBH,float valBL) //helper fxn
-{
-        ah.write(valAH);
-        al.write(valAL);
-        bh.write(valBH);
-        bl.write(valBL);
-}
-*/
+
 void Motor::brake(float value) //throw on the breaks!  Short motor across GND.
 {
+    float val = clamp(value,0,1); //clamp it to be between zero and 1.  take the abs just in case...
+    ead.write(val);
+    ebd.write(val);
     //write_mosfets(0,value,0,value);
-
 }
 
 /*
