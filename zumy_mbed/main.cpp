@@ -10,14 +10,14 @@
 #include "comms.h"
 
 
-
+//various ints and floats that are updated by the mbed that are read over RPC.
 int r_enc, l_enc;
-
+float r_spd,l_spd;
 
 RPCVariable<int>   rpc_r_enc(&r_enc, "r_enc");
 RPCVariable<int>   rpc_l_enc(&l_enc, "l_enc");
-
-
+RPCVariable<float> rpc_r_spd(&r_spd, "r_spd");
+RPCVariable<float> rpc_l_spd(&l_spd, "l_spd");
 
 
 DigitalOut init_done(LED1);
@@ -62,9 +62,8 @@ int main() {
         // Handle the encoders, used for testing if rpc variable reads work
         r_enc=track_right->get_position();
         l_enc=track_left->get_position();
-
-        //pc.printf("Effort: %f %f \n\r",track_right->getPwm(),track_left->getPwm());
-        //pc.printf("Speed: %f %f \n\r",track_right->get_speed(),track_left->get_speed());
+        r_spd=track_right->get_speed();
+        l_spd=track_left->get_speed();
 
         Thread::wait(10);  //non-blocking wait.  may not be 100% precise, but better than blocking.
     }
@@ -98,38 +97,13 @@ void sm(Arguments* input, Reply *output)
 
 }
 
-void spd(Arguments* input, Reply *output);
-//Attach it to an RPC object.
-RPCFunction rpc_spd(&spd, "spd");
-void spd(Arguments* input, Reply *output)
-{
-    //one argument: near or far.
-
-    //linescan_query_sensor(linescan_buf);
-
-    //copy linescan_buff into new array, so it doesn't get overwritten.
-
-    pc.printf("L is %i \n\r",track_left->get_position());
-    pc.printf("R is %i \n\r",track_right->get_position());
-
-
-
-
-    output->putData(track_left->get_speed());
-    output->putData(track_right->get_speed());
-}
-
 
 void pid(Arguments* input, Reply *output);
 //Attach it to an RPC object.
 RPCFunction rpc_pid(&pid, "pid");
 void pid(Arguments* input, Reply *output)
 {
-    //one argument: near or far.
-
-    //linescan_query_sensor(linescan_buf);
-
-    //copy linescan_buff into new array, so it doesn't get overwritten.
+    //function that sets the track's PID settings.  Useful for chaing the PID gains if the zumy is carrying an additional load.
 
     float kp = input->getArg<float>();
     float ki = input->getArg<float>();
