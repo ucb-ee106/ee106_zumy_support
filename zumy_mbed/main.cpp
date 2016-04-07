@@ -74,7 +74,7 @@ int main() {
 void enable(Arguments* input, Reply *output);
 //Attach it to an RPC object.
 RPCFunction rpc_enable(&enable,"enable");
-void enable(Arguments* input, Reply *output) //0 to disable tracks.  anything else to enable 
+void enable(Arguments* input, Reply *output) //0 to disable tracks.  anything else to enable.  Put other commands here, as neccessary, to disable the robot as appropriate.
 {
     int arg0 = input->getArg<int>();
     bool enab = false;
