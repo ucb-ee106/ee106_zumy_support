@@ -23,6 +23,7 @@ private:
 	int inverted; //set to -1 for inverted
 	PID controller; //the PID controller
 	RtosTimer control_timer;
+	bool enabled;
 
 	void execute_timeout(); //internal control loop
 	static void wrap_execute_control(const void *track);
@@ -52,6 +53,8 @@ public:
 	float clamp(float input, float min, float max);
 
 	float getPwm();
+
+	void enable(bool state); //change enable state to true or false.  will stop both manual and auto mode. will stop motors in disabled state.
 
 };
 

@@ -31,6 +31,7 @@ Track::Track(PinName motor_1, PinName motor_2, PinName enc_A, PinName enc_B, int
     set_auto(false);
 
     inverted = 1;
+    enabled = false; //i start disabled, thank you very much.
 
     //now that i've constructed the timers, attack the correct function to the (already running) encoder ticker
     //and start the rtos Timer for the speed pid loop.
@@ -41,7 +42,10 @@ Track::Track(PinName motor_1, PinName motor_2, PinName enc_A, PinName enc_B, int
 void Track::manual_speed(float dutyCycle)
 {
 	set_auto(false);
-	motor.pwm_speed(inverted*dutyCycle);
+	if(enabled)
+	{
+		motor.pwm_speed(inverted*dutyCycle);
+	}
 }
 void Track::set_velocity_setpoint(float speed)
 {
@@ -114,14 +118,10 @@ void Track::execute_control()  //function to execute closed loop control
 {
     // Only change the speed if the motor is running in auto
     // (speed-controlled) mode
-    if (closed_loop) 
+    if (closed_loop & enabled)  //don't compute if i'm disabled.  prevents integral wind-up.
     {
         controller.setProcessValue(get_speed());
         float val = controller.compute();
-        //pc->printf("%.4f PWM \n\r",val);
-        //pc->printf("%.2f process_val \n\r",enc_speed());
-        //pc->printf("%.2f set \n\r",controller.getSetpoint());
-        //pwm_speed(clamp(pwm_val + val,0.0,1.0));
         //need inverted here  impirically determined.
         motor.pwm_speed(clamp(-inverted*val,-1,1));
     }
@@ -147,4 +147,13 @@ float Track::clamp(float input, float min, float max)
         return input;
     }
 
+}
+
+void Track::enable(bool state)
+{
+	enabled = state;
+	if(state == false)
+	{
+		motor.pwm_speed(0); //turn off the motor if i'm disabled!
+	}
 }

@@ -71,6 +71,23 @@ int main() {
 }
 
 
+void enable(Arguments* input, Reply *output);
+//Attach it to an RPC object.
+RPCFunction rpc_enable(&enable,"enable");
+void enable(Arguments* input, Reply *output) //0 to disable tracks.  anything else to enable 
+{
+    int arg0 = input->getArg<int>();
+    bool enab = false;
+    if((arg0) > 0)
+    {
+        enab = true;    
+    }
+    
+    track_left->enable(enab);
+    track_right->enable(enab);
+
+}
+
 
 void sm(Arguments* input, Reply *output);
 //Attach it to an RPC object.
