@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------
  *      RL-ARM - RTX
  *----------------------------------------------------------------------------
- *      Name:    HAL_CM4.S
- *      Purpose: Hardware Abstraction Layer for Cortex-M4
- *      Rev.:    V4.70
+ *      Name:    HAL_CM3.S
+ *      Purpose: Hardware Abstraction Layer for Cortex-M3
+ *      Rev.:    V4.60
  *----------------------------------------------------------------------------
  *
- * Copyright (c) 1999-2009 KEIL, 2009-2013 ARM Germany GmbH
+ * Copyright (c) 1999-2009 KEIL, 2009-2012 ARM Germany GmbH
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -15,27 +15,26 @@
  *  - Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
- *  - Neither the name of ARM  nor the names of its contributors may be used 
- *    to endorse or promote products derived from this software without 
+ *  - Neither the name of ARM  nor the names of its contributors may be used
+ *    to endorse or promote products derived from this software without
  *    specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
  * ARE DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDERS AND CONTRIBUTORS BE
  * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *---------------------------------------------------------------------------*/
 
-        .file   "HAL_CM4.S"
+        .file   "HAL_CM3.S"
         .syntax unified
 
-        .equ    TCB_STACKF, 32
         .equ    TCB_TSTACK, 40
 
 
@@ -176,10 +175,6 @@ _free_box:
         .type   SVC_Handler, %function
         .global SVC_Handler
 SVC_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global SVC_Handler_Veneer
-SVC_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
@@ -189,9 +184,7 @@ SVC_Handler_Veneer:
         CBNZ    R1,SVC_User
 
         LDM     R0,{R0-R3,R12}          /* Read R0-R3,R12 from stack */
-        PUSH    {R4,LR}                 /* Save EXC_RETURN */
         BLX     R12                     /* Call SVC Function */
-        POP     {R4,LR}                 /* Restore EXC_RETURN */
 
         MRS     R12,PSP                 /* Read PSP */
         STM     R12,{R0-R2}             /* Store return values */
@@ -199,22 +192,9 @@ SVC_Handler_Veneer:
         LDR     R3,=os_tsk
         LDM     R3,{R1,R2}              /* os_tsk.run, os_tsk.new */
         CMP     R1,R2
-        .ifdef  IFX_XMC4XXX
-        ITT     EQ
-        PUSHEQ  {LR}
-        POPEQ   {PC}
-        .else
-        IT      EQ
-        BXEQ    LR                      /* RETI, no task switch */
-        .endif
+        BEQ     SVC_Exit                /* no task switch */
 
         CBZ     R1,SVC_Next             /* Runtask deleted? */
-        TST     LR,#0x10                /* is it extended frame? */
-        ITTE    EQ
-        VSTMDBEQ R12!,{S16-S31}         /* yes, stack also VFP hi-regs */
-        MOVEQ   R0,#0x01                /* os_tsk->stack_frame val */
-        MOVNE   R0,#0x00
-        STRB    R0,[R1,#TCB_STACKF]     /* os_tsk.run->stack_frame = val */
         STMDB   R12!,{R4-R11}           /* Save Old context */
         STR     R12,[R1,#TCB_TSTACK]    /* Update os_tsk.run->tsk_stack */
 
@@ -227,21 +207,11 @@ SVC_Next:
 
         LDR     R12,[R2,#TCB_TSTACK]    /* os_tsk.new->tsk_stack */
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
-        LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
-        CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        ITTE    NE
-        VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
-        MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
 
 SVC_Exit:
-        .ifdef  IFX_XMC4XXX
-        PUSH    {LR}
-        POP     {PC}
-        .else
+        MVN     LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
         BX      LR
-        .endif
 
         /*------------------- User SVC ------------------------------*/
 
@@ -265,7 +235,7 @@ SVC_Done:
 
         .fnend
         .size   SVC_Handler, .-SVC_Handler
-        
+
 
 /*-------------------------- PendSV_Handler ---------------------------------*/
 
@@ -276,38 +246,18 @@ SVC_Done:
         .global PendSV_Handler
         .global Sys_Switch
 PendSV_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global PendSV_Handler_Veneer
-PendSV_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
-        PUSH    {R4,LR}                 /* Save EXC_RETURN */
         BL      rt_pop_req
 
 Sys_Switch:
-        POP     {R4,LR}                 /* Restore EXC_RETURN */
-
         LDR     R3,=os_tsk
         LDM     R3,{R1,R2}              /* os_tsk.run, os_tsk.new */
         CMP     R1,R2
-        .ifdef  IFX_XMC4XXX
-        ITT     EQ
-        PUSHEQ  {LR}
-        POPEQ   {PC}
-        .else
-        IT      EQ
-        BXEQ    LR                      /* RETI, no task switch */
-        .endif
+        BEQ     Sys_Exit
 
         MRS     R12,PSP                 /* Read PSP */
-        TST     LR,#0x10                /* is it extended frame? */
-        ITTE    EQ
-        VSTMDBEQ R12!,{S16-S31}         /* yes, stack also VFP hi-regs */
-        MOVEQ   R0,#0x01                /* os_tsk->stack_frame val */
-        MOVNE   R0,#0x00
-        STRB    R0,[R1,#TCB_STACKF]     /* os_tsk.run->stack_frame = val */
         STMDB   R12!,{R4-R11}           /* Save Old context */
         STR     R12,[R1,#TCB_TSTACK]    /* Update os_tsk.run->tsk_stack */
 
@@ -319,21 +269,11 @@ Sys_Switch:
 
         LDR     R12,[R2,#TCB_TSTACK]    /* os_tsk.new->tsk_stack */
         LDMIA   R12!,{R4-R11}           /* Restore New Context */
-        LDRB    R0,[R2,#TCB_STACKF]     /* Stack Frame */
-        CMP     R0,#0                   /* Basic/Extended Stack Frame */
-        ITTE    NE
-        VLDMIANE R12!,{S16-S31}         /* restore VFP hi-registers */
-        MVNNE   LR,#~0xFFFFFFED         /* set EXC_RETURN value */
-        MVNEQ   LR,#~0xFFFFFFFD
         MSR     PSP,R12                 /* Write PSP */
 
 Sys_Exit:
-        .ifdef  IFX_XMC4XXX
-        PUSH    {LR}
-        POP     {PC}
-        .else
+        MVN     LR,#~0xFFFFFFFD         /* set EXC_RETURN value */
         BX      LR                      /* Return to Thread Mode */
-        .endif
 
         .fnend
         .size   PendSV_Handler, .-PendSV_Handler
@@ -347,14 +287,9 @@ Sys_Exit:
         .type   SysTick_Handler, %function
         .global SysTick_Handler
 SysTick_Handler:
-        .ifdef  IFX_XMC4XXX
-        .global SysTick_Handler_Veneer
-SysTick_Handler_Veneer:
-        .endif
         .fnstart
         .cantunwind
 
-        PUSH    {R4,LR}                 /* Save EXC_RETURN */
         BL      rt_systick
         B       Sys_Switch
 
@@ -373,7 +308,6 @@ OS_Tick_Handler:
         .fnstart
         .cantunwind
 
-        PUSH    {R4,LR}                 /* Save EXC_RETURN */
         BL      os_tick_irqack
         BL      rt_systick
         B       Sys_Switch

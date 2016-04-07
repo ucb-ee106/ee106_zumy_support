@@ -33,24 +33,23 @@
 ; *---------------------------------------------------------------------------*/
 
 
-                AREA    SVC_TABLE, CODE, READONLY
+        .file   "SVC_Table.S"
 
-                EXPORT  SVC_Count
 
-SVC_Cnt         EQU    (SVC_End-SVC_Table)/4
-SVC_Count       DCD     SVC_Cnt
+        .section ".svc_table"
 
-; Import user SVC functions here.
-;               IMPORT  __SVC_1
+        .global  SVC_Table
+SVC_Table:
+/* Insert user SVC functions here. SVC 0 used by RTL Kernel. */
+#       .long   __SVC_1                 /* user SVC function */
+SVC_End:
 
-                EXPORT  SVC_Table
-SVC_Table
-; Insert user SVC functions here. SVC 0 used by RTL Kernel.
-;               DCD     __SVC_1                 ; user SVC function
+        .global  SVC_Count
+SVC_Count:
+        .long   (SVC_End-SVC_Table)/4
 
-SVC_End
 
-                END
+        .end
 
 /*----------------------------------------------------------------------------
  * end of file
