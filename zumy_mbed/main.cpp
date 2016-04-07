@@ -7,10 +7,8 @@
 #include "pindefs.h"
 #include "Track.h"
 #include "imu.h"
+#include "comms.h"
 
-//SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
-MODSERIAL pc(USBTX, USBRX); // tx, rx
-//Serial pc(USBTX,USBRX);
 
 
 int r_enc, l_enc;
@@ -30,23 +28,6 @@ Track* track_right;
 Track* track_left;
 
 
-//copy_paste from 192.  gets when using carriange returns
-int gets_cr(MODSERIAL &src, char *s, int max) {
-    int counter = 0;
-    char c = 0;
-    while(c != '\r')//src.readable() && c != '\r') 
-    {
-        c = src.getc();
-        //pc.printf("%c \n\r",c);
-        *(s++) = c;
-        counter++;
-        if (counter == max-1) break;
-    }
-    //*(s+1) = ' ';
-    *(s++) = '\0';
-
-    return counter;
-}
 
 
 void led_blink_periodic(void const *args) {
@@ -58,21 +39,11 @@ int main() {
 
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(200);
+    ledBlinkTimer.start(1000);
 
-    char rpc_input_buf[256];
-    char rpc_output_buf[1024];
-    //copy-pasta from 192, and remove the parts I don't need.
+   
 
-    pc.baud(115200);
-
-
-
-    pc.printf("Hello world! \n\r");
-    test = 1;
-    wait_ms(100);
-    test = 0;
-    wait_ms(100);
+    init_comms();
 
     Track track_left_ = Track(MOTOR_1_1,MOTOR_1_2,p29,p30,624);
     Track track_right_ = Track(MOTOR_2_1,MOTOR_2_2,p11,p12,624); //these both need to be instantiaed inside main, not statically above.
@@ -82,53 +53,20 @@ int main() {
     pc.printf("Tracks initialized \n\r");
 
     init_imu();  //also starts an rtos thread for the purpose of reading the IMU.
-    pc.printf("IMU is ready is%d \n\r",imu_ready);
+    pc.printf("IMU is ready is %d \n\r",imu_ready);
 
     // receive commands, and send back the responses
 
     while(1) 
     {
-        //pc.gets(rpc_input_buf, 256);
-        gets_cr(pc,rpc_input_buf,256); //works around the ctrl-enter thing. nneed to append things with a space...
-        //pc.printf("input_buf is %sEND \n\r",rpc_input_buf);
-
-        /*
-
-        char* loc = &rpc_input_buf[0];
-        pc.printf("Mem addr is %i \n\r",loc);
-        for(int i = 0; i<20; i++)
-        {
-            pc.printf("%i.",*(loc+i));
-
-        }
-
-
-        */
-
-        //pc.printf("\n\r");
-        
-        //for(int i = 0; i<20; i++)
-        //{
-        //    pc.printf("%c.",*(loc+i));
-        //}
-
-        pc.printf("\n\r");
-        
-        //pc.printf("%i..\n\r",rpc_input_buf);
-        
-        //pc.printf(rpc_input_buf);
-        RPC::call(rpc_input_buf, rpc_output_buf);
-
-        pc.printf("%s \n\r>>>", rpc_output_buf);
-        Thread::wait(100);
-
         // Handle the encoders, used for testing if rpc variable reads work
         r_enc=track_right->get_position();
         l_enc=track_left->get_position();
 
-        pc.printf("Effort: %f %f \n\r",track_right->getPwm(),track_left->getPwm());
-        pc.printf("Speed: %f %f \n\r",track_right->get_speed(),track_left->get_speed());
+        //pc.printf("Effort: %f %f \n\r",track_right->getPwm(),track_left->getPwm());
+        //pc.printf("Speed: %f %f \n\r",track_right->get_speed(),track_left->get_speed());
 
+        Thread::wait(10);  //non-blocking wait.  may not be 100% precise, but better than blocking.
     }
 
 }
