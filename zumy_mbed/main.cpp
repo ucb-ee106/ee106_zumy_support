@@ -1,34 +1,28 @@
 #include "mbed.h"
 #include "mbed_rpc.h"
-#include "MPU6050.h"
+
 #include "QEI.h"
 #include "MODSERIAL.h"
 #include "rtos.h"
 #include "pindefs.h"
 #include "Track.h"
+#include "imu.h"
 
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
 //Serial pc(USBTX,USBRX);
 
-float accel_x, accel_y, accel_z, gyro_x, gyro_y, gyro_z;
+
 int r_enc, l_enc;
 
-RPCVariable<float> rpc_accel_x(&accel_x, "accel_x");
-RPCVariable<float> rpc_accel_y(&accel_y, "accel_y");
-RPCVariable<float> rpc_accel_z(&accel_z, "accel_z");
-RPCVariable<float> rpc_gryo_x(&gyro_x, "gyro_x");
-RPCVariable<float> rpc_gryo_y(&gyro_y, "gyro_y");
-RPCVariable<float> rpc_gryo_z(&gyro_z, "gyro_z");
+
 RPCVariable<int>   rpc_r_enc(&r_enc, "r_enc");
 RPCVariable<int>   rpc_l_enc(&l_enc, "l_enc");
-//QEI l_wheel (p29, p30, NC, 624);
-//QEI r_wheel (p11, p12, NC, 624);
 
-MPU6050 mpu6050;
+
+
 
 DigitalOut init_done(LED1);
-DigitalOut imu_good(LED2);
 DigitalOut main_loop(LED3);
 DigitalOut test(LED4);
 
@@ -64,7 +58,7 @@ int main() {
 
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(1000);
+    ledBlinkTimer.start(200);
 
     char rpc_input_buf[256];
     char rpc_output_buf[1024];
@@ -79,16 +73,18 @@ int main() {
     wait_ms(100);
     test = 0;
     wait_ms(100);
-    // receive commands, and send back the responses
 
     Track track_left_ = Track(MOTOR_1_1,MOTOR_1_2,p29,p30,624);
     Track track_right_ = Track(MOTOR_2_1,MOTOR_2_2,p11,p12,624); //these both need to be instantiaed inside main, not statically above.
     track_left = &track_left_;
     track_right = &track_right_;
-
     track_right -> invert(true); //I start inverted.
-
     pc.printf("Tracks initialized \n\r");
+
+    init_imu();  //also starts an rtos thread for the purpose of reading the IMU.
+    pc.printf("IMU is ready is%d \n\r",imu_ready);
+
+    // receive commands, and send back the responses
 
     while(1) 
     {
@@ -105,6 +101,7 @@ int main() {
             pc.printf("%i.",*(loc+i));
 
         }
+
 
         */
 
