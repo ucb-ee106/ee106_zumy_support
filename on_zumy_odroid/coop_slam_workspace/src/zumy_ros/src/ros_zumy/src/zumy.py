@@ -32,21 +32,10 @@ enc_names = ['r_enc','l_enc']
 class Zumy:
     def __init__(self, dev='/dev/ttyACM0'):
         self.mbed=SerialRPC(dev, 115200)
-        #don't do any of the motor stuff... b/c the mbed should do it itself.
-        #a1=PwmOut(self.mbed, p21)
-        #a2=PwmOut(self.mbed, p22)
-        #b1=PwmOut(self.mbed, p23)
-        #b2=PwmOut(self.mbed, p24)
 
-        #Setting motor PWM frequency
-        #pwm_freq = 50.0
-        #a1.period(1/pwm_freq)
-        #a2.period(1/pwm_freq)
-        #b1.period(1/pwm_freq)
-        #b2.period(1/pwm_freq)
-        
-        #self.m_right = Motor(a1, a2)
-        #self.m_left = Motor(b1, b2)
+        self.tracks = RPCFunction(self.mbed,"sm")
+        self.mbed_enable = RPCFunction(self.mbed,"enable")
+
         self.an = AnalogIn(self.mbed, p15)
         self.imu_vars = [RPCVariable(self.mbed,name,delete = False) for name in imu_names]
         self.enc_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_names]
@@ -57,14 +46,20 @@ class Zumy:
         self.volts = [8.0 for i in range(0,5)] #5 element long moving average filter, initialized to 8 volts  (it'll quickly change)
 
         self.battery_lock = False #a boolean to tell me if my battery ever dipped below the battery threshold.
+        self.enable() #tell the zumy that it's enabled.
+
+    def __del__(self):
+      self.disable()
 
     def cmd(self, left, right):
         self.rlock.acquire()
-	      # As of Rev. F, positive command is sent to both left and right
+        # As of Rev. F, positive command is sent to both left and right
         try:
-          if self.enabled: #don't do anything if i'm disabled
-            #self.m_left.cmd(left)
-            #self.m_right.cmd(right)
+          if self.enabled: #don't do anything if i'm disabled\
+
+            #translate left and right (which are in meters/sec) to encoder_ticks / sec
+            translation_factor = 1
+            self.tracks.run(str(translation_factor*left) + " " + str(translation_factor*right))
             pass
         except SerialException:
           pass
@@ -103,30 +98,31 @@ class Zumy:
     def enable(self):
       #enable the zumy, but only if my battery hasn't been unhappy.
       if not self.battery_lock:
-	      self.enabled = True
+        self.enabled = True
+        self.mbed_enable.run(str(1))
 
 
     def disable(self):
-      #first, stop the zumy.
-      self.cmd(0,0)
+      #first, disable the zumy.
+      self.mbed_enable.run(str(0))
       #second, disable the zumy flag.
       self.enabled = False
 
     def battery_protection(self):
-    	#a function that needs to be called with some regularity
-    	#disables the robot if the battery voltage is very low
-    	if np.mean(self.volts) < 6.6: #6.6 volts--> 3.3V per cell.
-    		#averages over the last 5 battery measurements, because loading effects are :(
+      #a function that needs to be called with some regularity
+      #disables the robot if the battery voltage is very low
+      if np.mean(self.volts) < 6.6: #6.6 volts--> 3.3V per cell.
+        #averages over the last 5 battery measurements, because loading effects are :(
 
-    		self.disable()
-    		self.battery_lock = True
+        self.disable()
+        self.battery_lock = True
     
     def battery_unsafe(self):
-    	#return true if i think my battery is unsafe.
-    	return self.battery_lock
+      #return true if i think my battery is unsafe.
+      return self.battery_lock
 
 if __name__ == '__main__':
     z=Zumy()
-    z.cmd(0.3,0.3)
-    time.sleep(0.3)
+    z.cmd(1000,400)
+    time.sleep(3)
     z.cmd(0,0) 

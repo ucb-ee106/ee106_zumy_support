@@ -265,13 +265,15 @@ class Serial():
 
 class RPCFunction():
 
-    def __init__(self, this_mbed , name):
+    def __init__(self, this_mbed , name, delete = False): #optional parameter, but by default, don't delete these methods.
         self.mbed = this_mbed
         if isinstance(name, str):
             self.name = name
+        self.delete = delete
 
     def __del__(self):
-        r = self.mbed.rpc(self.name, "delete", [])
+        if self.delete:
+            r = self.mbed.rpc(self.name, "delete", [])
 
     def read(self):
         r = self.mbed.rpc(self.name, "read", [])
