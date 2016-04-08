@@ -92,19 +92,12 @@ void enable(Arguments* input, Reply *output) //0 to disable tracks.  anything el
 void sm(Arguments* input, Reply *output);
 //Attach it to an RPC object.
 RPCFunction rpc_sm(&sm, "sm");
-void sm(Arguments* input, Reply *output)
+void sm(Arguments* input, Reply *output)  //SetMotors.  Currently, just sets velocity setpoint.  We can work on bringing back open-loop options later.
 {
-    //one argument: near or far.
-
-    //linescan_query_sensor(linescan_buf);
-
-    //copy linescan_buff into new array, so it doesn't get overwritten.
 
     float arg0 = input->getArg<float>();
     float arg1 = input->getArg<float>();
 
-    //pc.printf("arg0 is %f \n\r",arg0);
-    //pc.printf("arg1 is %f \n\r",arg1);
     track_left -> set_auto(true);
     track_right -> set_auto(true);
 
