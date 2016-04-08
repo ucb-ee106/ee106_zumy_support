@@ -114,7 +114,7 @@ public:
     virtual const struct rpc_method *get_rpc_methods() {
         static const rpc_method rpc_methods[] = {
             {"read", rpc_method_caller<float, RpcAnalogIn, &RpcAnalogIn::read>},
-            {"read_u16", rpc_method_caller<unsigned short, RpcAnalogIn, &RpcAnalogIn::read_u16>},
+            //{"read_u16", rpc_method_caller<unsigned short, RpcAnalogIn, &RpcAnalogIn::read_u16>},  Can't return read_u16, don't know why. makes with this line commented out.
             RPC_METHOD_SUPER(RPC)
         };
         return rpc_methods;

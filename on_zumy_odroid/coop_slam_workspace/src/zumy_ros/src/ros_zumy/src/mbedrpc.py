@@ -33,37 +33,38 @@ class pin():
     def __init__(self, id):
         self.name = id
 
-LED1 = pin("LED1")
-LED2 = pin("LED2")
-LED3 = pin("LED3")
-LED4 = pin("LED4")
+#we'll need the space after the textual name due to a quick in how the mbed library parses objects.  Future work will be to take this out, but it'll require work on the embedded side/
+LED1 = pin("LED1 ")
+LED2 = pin("LED2 ")
+LED3 = pin("LED3 ")
+LED4 = pin("LED4 ")
 
-p5 = pin("p5")
-p6 = pin("p6")
-p7 = pin("p7")
-p8 = pin("p8")
-p9 = pin("p9")
-p10 = pin("p10")
-p11 = pin("p11")
-p12 = pin("p12")
-p13 = pin("p13")
-p14 = pin("p14")
-p15 = pin("p15")
-p16 = pin("p16")
-p17 = pin("p17")
-p18 = pin("p18")
-p19 = pin("p19")
-p20 = pin("p20")
-p21 = pin("p21")
-p22 = pin("p22")
-p23 = pin("p23")
-p24 = pin("p24")
-p25 = pin("p25")
-p26 = pin("p26")
-p27 = pin("p27")
-p28 = pin("p28")
-p29 = pin("p29")
-p30 = pin("p30")
+p5 = pin("p5 ")
+p6 = pin("p6 ")
+p7 = pin("p7 ")
+p8 = pin("p8 ")
+p9 = pin("p9 ")
+p10 = pin("p10 ")
+p11 = pin("p11 ")
+p12 = pin("p12 ")
+p13 = pin("p13 ")
+p14 = pin("p14 ")
+p15 = pin("p15 ")
+p16 = pin("p16 ")
+p17 = pin("p17 ")
+p18 = pin("p18 ")
+p19 = pin("p19 ")
+p20 = pin("p20 ")
+p21 = pin("p21 ")
+p22 = pin("p22 ")
+p23 = pin("p23 ")
+p24 = pin("p24 ")
+p25 = pin("p25 ")
+p26 = pin("p26 ")
+p27 = pin("p27 ")
+p28 = pin("p28 ")
+p29 = pin("p29 ")
+p30 = pin("p30 ")
 
 
 #mbed super class
@@ -84,15 +85,29 @@ class SerialRPC(mbed):
           try:
             self.ser = serial.Serial(port, timeout=timeout)
             self.ser.setBaudrate(baud)
+
           except:
             time.sleep(0.1)
+        cur_time = time.time() #give some time for the zumy's comms to startup and crank out bytes.
+
+        #crank out bytes for three seconds, so I know that all startup messages are gone.        
+        while time.time() < cur_time +3:
+            self.ser.readlines()
 
     def rpc(self, name, method, args):
-        self.ser.write("/" + name + "/" + method + " " + " ".join(args) + "\n")
-        # Wait necessary to prevent incomplete reads, tends to take ~0.0002s to read
-        time.sleep(0.01)
+        string = "/" + name + "/" + method + " " + " ".join(args) + "\r" #use \r due to zumy's get string implimentation
+        self.ser.write(string)
+        time.sleep(0.0002)
+        #no wait.  We may want to put a timeout here, but any wait of any kind leaves us liable to miss characters on the serial port.
+        #throwaway one line.  (Due to the implimentaiton of the mbed comms, there's an extra new line (which is convienent for human-readability via minicom))
+
+        #open question why it gets it in THIS order, not the other way around.
+        #may want to, in the future, consider universal line ending mode: https://pythonhosted.org/pyserial/shortintro.html#readline
+        rval = self.ser.readline();
+        #get real value now
         rval = self.ser.readline().strip()
         return rval
+
 
 class HTTPRPC(mbed):
 
@@ -132,7 +147,10 @@ class AnalogIn():
         if isinstance(mpin, str):
             self.name = mpin
         elif isinstance(mpin, pin):
-            self.name = self.mbed.rpc("AnalogIn", "new", [mpin.name])
+            response = self.mbed.rpc("AnalogIn", "new", [mpin.name])
+            #we ask the zumy to very kindly insantiate a pin, and tell us what it's name (which is really it's location in memory) is
+            #this is true for every class implimentation.
+            self.name = response
 
     def __del__(self):
         r = self.mbed.rpc(self.name, "delete", [])
@@ -141,9 +159,12 @@ class AnalogIn():
         r = self.mbed.rpc(self.name, "read", [])
         return float(r)
 
+    #current implimentation does not support u16 read on LCP_1768's
+    '''
     def read_u16(self):
         r = self.mbed.rpc(self.name, "read_u16", [])
         return int(r)
+    '''
 
 class AnalogOut():
 
@@ -262,13 +283,15 @@ class RPCFunction():
 
 class RPCVariable():
 
-    def __init__(self, this_mbed , name):
+    def __init__(self, this_mbed , name, delete = True): #optional parameter: delte (delete the variable on closing.)  Useful for not deleting RPC variables that are made by the mbed, not the python code
         self.mbed = this_mbed
         if isinstance(name, str):
             self.name = name
+        self.delete = delete
 
     def __del__(self):
-        r = self.mbed.rpc(self.name, "delete", [])
+        if self.delete:
+            r = self.mbed.rpc(self.name, "delete", [])
 
     def write(self, value):
         self.mbed.rpc(self.name, "write", [str(value)])

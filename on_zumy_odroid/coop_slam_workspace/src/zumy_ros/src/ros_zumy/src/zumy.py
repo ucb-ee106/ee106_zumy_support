@@ -11,6 +11,8 @@ import time
 from serial import SerialException
 import numpy as np #just so I can use the np.mean function.  Nothing strange going on here.
 
+
+
 class Motor:
     def __init__(self, a1, a2):
         self.a1=a1
@@ -30,23 +32,24 @@ enc_names = ['r_enc','l_enc']
 class Zumy:
     def __init__(self, dev='/dev/ttyACM0'):
         self.mbed=SerialRPC(dev, 115200)
-        a1=PwmOut(self.mbed, p21)
-        a2=PwmOut(self.mbed, p22)
-        b1=PwmOut(self.mbed, p23)
-        b2=PwmOut(self.mbed, p24)
+        #don't do any of the motor stuff... b/c the mbed should do it itself.
+        #a1=PwmOut(self.mbed, p21)
+        #a2=PwmOut(self.mbed, p22)
+        #b1=PwmOut(self.mbed, p23)
+        #b2=PwmOut(self.mbed, p24)
 
         #Setting motor PWM frequency
-        pwm_freq = 50.0
-        a1.period(1/pwm_freq)
-        a2.period(1/pwm_freq)
-        b1.period(1/pwm_freq)
-        b2.period(1/pwm_freq)
+        #pwm_freq = 50.0
+        #a1.period(1/pwm_freq)
+        #a2.period(1/pwm_freq)
+        #b1.period(1/pwm_freq)
+        #b2.period(1/pwm_freq)
         
-        self.m_right = Motor(a1, a2)
-        self.m_left = Motor(b1, b2)
+        #self.m_right = Motor(a1, a2)
+        #self.m_left = Motor(b1, b2)
         self.an = AnalogIn(self.mbed, p15)
-        self.imu_vars = [RPCVariable(self.mbed,name) for name in imu_names]
-        self.enc_vars = [RPCVariable(self.mbed,name) for name in enc_names]
+        self.imu_vars = [RPCVariable(self.mbed,name,delete = False) for name in imu_names]
+        self.enc_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_names]
         self.rlock=threading.Lock()
 
         self.enabled = True #note it's enableD, to avoid namespace collision with the function 'enable'
@@ -60,8 +63,9 @@ class Zumy:
 	      # As of Rev. F, positive command is sent to both left and right
         try:
           if self.enabled: #don't do anything if i'm disabled
-            self.m_left.cmd(left)
-            self.m_right.cmd(right)
+            #self.m_left.cmd(left)
+            #self.m_right.cmd(right)
+            pass
         except SerialException:
           pass
         self.rlock.release()

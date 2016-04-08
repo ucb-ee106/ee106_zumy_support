@@ -67,13 +67,32 @@ void handle_incoming_traffic(void const *n)
         //pc.printf(rpc_input_buf);
         RPC::call(rpc_input_buf, rpc_output_buf);
 
-        pc.printf("%s \n\r>>>", rpc_output_buf);
-        Thread::wait(100);
+        pc.printf("%s \n\r", rpc_output_buf);
+        Thread::wait(10);
     }
 }
 
 void init_comms()
 {
+    #if DEVICE_ANALOGIN
+    //RPC::add_rpc_class<RpcAnalogIn>();
+    #endif
+    RPC::add_rpc_class<RpcAnalogIn>();
+    RPC::add_rpc_class<RpcDigitalIn>();
+    RPC::add_rpc_class<RpcDigitalOut>();
+    RPC::add_rpc_class<RpcDigitalInOut>();
+    RPC::add_rpc_class<RpcPwmOut>();
+    RPC::add_rpc_class<RpcTimer>();
+    //RPC::add_rpc_class<RpcBusOut>();
+    //RPC::add_rpc_class<RpcBusIn>();
+    //RPC::add_rpc_class<RpcBusInOut>();
+    RPC::add_rpc_class<RpcSerial>();
+    
+    //AnalogOut not avaliable on mbed LPC11U24 so only compile for other devices
+    #if DEVICE_ANALOGOUT
+    //RPC::add_rpc_class<RpcAnalogOut>();
+    #endif
+
     pc.baud(115200);
     wait_ms(20); //pause for just a bit.
     pc.printf("Hello world! \n\r");
