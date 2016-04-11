@@ -143,6 +143,6 @@ class Zumy:
 
 if __name__ == '__main__':
     z=Zumy()
-    z.cmd(1000,400)
+    z.cmd(0.05,0.05)
     time.sleep(3)
     z.cmd(0,0) 
