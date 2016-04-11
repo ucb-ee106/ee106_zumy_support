@@ -97,16 +97,21 @@ class Zumy:
 
     def enable(self):
       #enable the zumy, but only if my battery hasn't been unhappy.
+      self.rlock.acquire()
       if not self.battery_lock:
         self.enabled = True
         self.mbed_enable.run(str(1))
+      self.rlock.release()
 
 
     def disable(self):
+      self.rlock.acquire()
+
       #first, disable the zumy.
       self.mbed_enable.run(str(0))
       #second, disable the zumy flag.
       self.enabled = False
+      self.rlock.release()
 
     def battery_protection(self):
       #a function that needs to be called with some regularity

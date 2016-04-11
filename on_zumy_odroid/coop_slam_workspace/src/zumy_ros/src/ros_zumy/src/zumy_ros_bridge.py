@@ -74,35 +74,54 @@ class ZumyROS:
     while not rospy.is_shutdown():
       self.lock.acquire()
       self.zumy.cmd(*self.cmd)
-      imu_data = self.zumy.read_imu()
-      enc_data = self.zumy.read_enc()
-      self.lock.release()
-      
-      imu_msg = Imu()
-      imu_msg.header = Header(self.imu_count,rospy.Time.now(),self.name)
-      imu_msg.linear_acceleration.x = 9.81 * imu_data[0]
-      imu_msg.linear_acceleration.y = 9.81 * imu_data[1]
-      imu_msg.linear_acceleration.z = 9.81 * imu_data[2]
-      imu_msg.angular_velocity.x = 3.14 / 180.0 * imu_data[3]
-      imu_msg.angular_velocity.y = 3.14 / 180.0 * imu_data[4]
-      imu_msg.angular_velocity.z = 3.14 / 180.0 * imu_data[5]
-      self.imu_pub.publish(imu_msg)
-      
-      enc_msg = Int32()
-      enc_msg.data = enc_data[0]
-      self.r_enc_pub.publish(enc_msg)
-      enc_msg.data = enc_data[1]
-      self.l_enc_pub.publish(enc_msg)
+      try:
+        imu_data = self.zumy.read_imu()
+        imu_msg = Imu()
+        imu_msg.header = Header(self.imu_count,rospy.Time.now(),self.name)
+        imu_msg.linear_acceleration.x = 9.81 * imu_data[0]
+        imu_msg.linear_acceleration.y = 9.81 * imu_data[1]
+        imu_msg.linear_acceleration.z = 9.81 * imu_data[2]
+        imu_msg.angular_velocity.x = 3.14 / 180.0 * imu_data[3]
+        imu_msg.angular_velocity.y = 3.14 / 180.0 * imu_data[4]
+        imu_msg.angular_velocity.z = 3.14 / 180.0 * imu_data[5]
+        self.imu_pub.publish(imu_msg)
+      except ValueError:
+        pass
 
-      v_bat = self.zumy.read_voltage()
-      self.batt_pub.publish(v_bat)
-      self.heartBeat.publish("Alive, enabled is: " + str(self.zumy.enabled) + " Battery unsafe is: " + str(self.zumy.battery_unsafe()))
-      self.rate.sleep()
+      try:
+        enc_data = self.zumy.enc_pos()
+        enc_msg = Int32()
+        enc_msg.data = enc_data[0]
+        self.r_enc_pub.publish(enc_msg)
+        enc_msg.data = enc_data[1]
+        self.l_enc_pub.publish(enc_msg)
+        vel_data = self.zumy.enc_vel()
+      except ValueError:
+        pass
 
+      try:
+        v_bat = self.zumy.read_voltage()
+        self.batt_pub.publish(v_bat)
+      except ValueError:
+        pass
+      
       if time.time() > (self.last_message_at + self.timeout): #i've gone too long without seeing the watchdog.
         self.watchdog = False
         self.zumy.disable()
       self.zumy.battery_protection() # a function that needs to be called with some regularity.
+
+      self.heartBeat.publish("Alive, enabled is: " + str(self.zumy.enabled) + " Battery unsafe is: " + str(self.zumy.battery_unsafe()))
+
+
+      self.lock.release() #must be last command involving the zumy.
+      
+
+
+
+      
+      self.rate.sleep()
+
+      
 
 
     # If shutdown, turn off motors & disable anything else.
