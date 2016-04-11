@@ -27,7 +27,9 @@ class Motor:
             self.a2.write(-speed)
 
 imu_names = ['accel_x','accel_y','accel_z','gyro_x','gyro_y','gyro_z']
-enc_names = ['r_enc','l_enc']
+enc_pos_names = ['l_enc','r_enc']
+enc_vel_names = ['l_spd','r_spd']
+
 
 class Zumy:
     def __init__(self, dev='/dev/ttyACM0'):
@@ -38,12 +40,17 @@ class Zumy:
 
         self.an = AnalogIn(self.mbed, p15)
         self.imu_vars = [RPCVariable(self.mbed,name,delete = False) for name in imu_names]
-        self.enc_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_names]
+        self.enc_pos_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_pos_names]
+        self.enc_vel_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_vel_names]
         self.rlock=threading.Lock()
 
         self.enabled = True #note it's enableD, to avoid namespace collision with the function 'enable'
 
         self.volts = [8.0 for i in range(0,5)] #5 element long moving average filter, initialized to 8 volts  (it'll quickly change)
+
+        #translate left and right (which are in meters/sec) to encoder_ticks / sec
+        #600 ticks/rotation * 1 rotation / (circumfrence = pi*d = 3.15 * 1.5 inches * .024 meters/inch) = 600 / (pi*1.5*0.024) = 5305.16 ticks/meter
+        self.translation_factor = 5305.15 #ticks/meter
 
         self.battery_lock = False #a boolean to tell me if my battery ever dipped below the battery threshold.
         self.enable() #tell the zumy that it's enabled.
@@ -57,9 +64,8 @@ class Zumy:
         try:
           if self.enabled: #don't do anything if i'm disabled\
 
-            #translate left and right (which are in meters/sec) to encoder_ticks / sec
-            translation_factor = 1
-            self.tracks.run(str(translation_factor*left) + " " + str(translation_factor*right))
+
+            self.tracks.run(str(self.translation_factor*left) + " " + str(self.translation_factor*right))
             pass
         except SerialException:
           pass
@@ -77,10 +83,19 @@ class Zumy:
         self.volts.pop() #remove the last element
         return volt
 
-    def read_enc(self):
+    def enc_pos(self): #return in units of meters.
       self.rlock.acquire()
       try:
-        rval = [int(var.read()) for var in self.enc_vars]
+        rval = [float(self.translation_factor*int(var.read())) for var in self.enc_pos_vars]
+      except SerialException:
+        pass
+      self.rlock.release()
+      return rval
+
+    def enc_vel(self): #return speed in meters/sec
+      self.rlock.acquire()
+      try:
+        rval = [float(float(var.read())/self.translation_factor) for var in self.enc_vel_vars]
       except SerialException:
         pass
       self.rlock.release()

@@ -35,6 +35,9 @@ class ZumyROS:
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
     self.r_enc_pub = rospy.Publisher('r_enc', Int32, queue_size = 5)
     self.l_enc_pub = rospy.Publisher('l_enc', Int32, queue_size = 5)
+    self.r_vel_pub = rospy.Publisher('r_vel',Float32,queue_size = 5)
+    self.l_vel_pub = rospy.Publisher('l_vel',Float32,queue_size = 5)
+    
     self.imu_count = 0
 
     self.batt_pub = rospy.Publisher('Batt',Float32,queue_size = 5)
@@ -42,15 +45,29 @@ class ZumyROS:
     self.last_message_at = time.time()
     self.watchdog = True 
 
+  def twist_to_speeds(self,msg):  #function to convert a geometry_message_twist to a robot action
+    #done with math as done by doug
+    r = 3.4/2 * 0.024 #radius of the zumy is 3.4 inches/2, converted to metere.
+    vx = msg.linear.x
+    wz = msg.angular.z
+    #zumy can only move in the x, and rotate in the z.  no other movement is possible
+
+    #velociy of the left and right tracks
+    vr = vx+(wz/r)
+    vl = vx-(wz/r)
+    return (vl,vr) #vleft, vright.
+
+  def speeds_to_twist(self,vel_data):
+    #vel data is a tuple (vl,vr)
+    r = 3.4/2 * 0.024 #radius of the zumy is 3.4 inches/2, converted to metere.
+    vx = (vel_data[0] + vel_data[1]) / 2
+    wz = r*(vel_data[1] - vel_data[0])/2
+    return (vx,wz)
+
+
   def cmd_callback(self, msg):
-    lv = 0.6
-    la = 0.4
-    v = msg.linear.x
-    a = msg.angular.z
-    r = lv*v + la*a
-    l = lv*v - la*a
     self.lock.acquire()
-    self.cmd = (l,r)
+    self.cmd = self.twist_to_speeds(msg) #update the commanded speed, the next time the main loop in run comes through, it'll be update on the zumy.
     self.lock.release()
 
   def enable_callback(self,msg):
@@ -95,10 +112,19 @@ class ZumyROS:
         self.r_enc_pub.publish(enc_msg)
         enc_msg.data = enc_data[1]
         self.l_enc_pub.publish(enc_msg)
-        vel_data = self.zumy.enc_vel()
       except ValueError:
         pass
 
+      try:
+        vel_data = self.zumy.enc_vel()
+        vel_msg = Float32()
+        vel_msg.data = vel_data[0]
+        self.l_vel_pub.publish(vel_msg)
+        vel_msg.data = vel_data[1]
+        self.r_vel_pub.publish(vel_msg)
+      except ValueError:
+        pass
+        
       try:
         v_bat = self.zumy.read_voltage()
         self.batt_pub.publish(v_bat)
