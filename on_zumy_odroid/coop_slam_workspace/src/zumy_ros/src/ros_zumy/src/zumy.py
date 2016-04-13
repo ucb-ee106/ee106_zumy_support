@@ -49,8 +49,8 @@ class Zumy:
         self.volts = [8.0 for i in range(0,5)] #5 element long moving average filter, initialized to 8 volts  (it'll quickly change)
 
         #translate left and right (which are in meters/sec) to encoder_ticks / sec
-        #600 ticks/rotation * 1 rotation / (circumfrence = pi*d = 3.15 * 1.5 inches * .024 meters/inch) = 600 / (pi*1.5*0.024) = 5305.16 ticks/meter
-        self.translation_factor = 5305.15 #ticks/meter
+        #12 ticks/encoder_back_shaft_rotation * (100.37 encoder_back_shaft_rotation / 1 output_shaft_rotation) * 1 output_shaft_rotation / (circumfrence = pi*d = 3.15 * 1.5 inches * .0254 meters/inch) = 12*100.37 / (pi*1.5*0.0254) = 5012.16 ticks/meter        
+        self.translation_factor = 10062.6 #ticks/meter
 
         self.battery_lock = False #a boolean to tell me if my battery ever dipped below the battery threshold.
         self.enable() #tell the zumy that it's enabled.
