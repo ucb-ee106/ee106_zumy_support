@@ -10,6 +10,26 @@ from sensor_msgs.msg import Imu
 
 import socket,time
 
+def twist_to_speeds(msg):  #function to convert a geometry_message_twist to a robot action
+  #done with math as done by doug
+  r = 3.4/2.0 * 0.0254 #radius of the zumy is 3.4 inches/2, converted to metere.
+  vx = msg.linear.x
+  wz = msg.angular.z
+  #zumy can only move in the x, and rotate in the z.  no other movement is possible
+
+  #velociy of the left and right tracks
+  vr = vx+(wz*r)
+  vl = vx-(wz*r)
+  return (vl,vr) #vleft, vright.
+
+def speeds_to_twist(vel_data):
+  #vel data is a tuple (vl,vr)
+  r = 3.4/2 * 0.024 #radius of the zumy is 3.4 inches/2, converted to metere.
+  vx = (vel_data[0] + vel_data[1]) / 2
+  wz = r*(vel_data[1] - vel_data[0])/2
+  return (vx,wz)
+
+
 class ZumyROS:	
   def __init__(self):
     self.zumy = Zumy()
@@ -45,29 +65,12 @@ class ZumyROS:
     self.last_message_at = time.time()
     self.watchdog = True 
 
-  def twist_to_speeds(self,msg):  #function to convert a geometry_message_twist to a robot action
-    #done with math as done by doug
-    r = 3.4/2 * 0.024 #radius of the zumy is 3.4 inches/2, converted to metere.
-    vx = msg.linear.x
-    wz = msg.angular.z
-    #zumy can only move in the x, and rotate in the z.  no other movement is possible
 
-    #velociy of the left and right tracks
-    vr = vx+(wz/r)
-    vl = vx-(wz/r)
-    return (vl,vr) #vleft, vright.
-
-  def speeds_to_twist(self,vel_data):
-    #vel data is a tuple (vl,vr)
-    r = 3.4/2 * 0.024 #radius of the zumy is 3.4 inches/2, converted to metere.
-    vx = (vel_data[0] + vel_data[1]) / 2
-    wz = r*(vel_data[1] - vel_data[0])/2
-    return (vx,wz)
 
 
   def cmd_callback(self, msg):
     self.lock.acquire()
-    self.cmd = self.twist_to_speeds(msg) #update the commanded speed, the next time the main loop in run comes through, it'll be update on the zumy.
+    self.cmd = twist_to_speeds(msg) #update the commanded speed, the next time the main loop in run comes through, it'll be update on the zumy.
     self.lock.release()
 
   def enable_callback(self,msg):

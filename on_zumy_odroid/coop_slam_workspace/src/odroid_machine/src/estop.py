@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from tkinter import Tk, Label, Button
+from Tkinter import Tk, Label, Button
 
 import rospy
 import time
