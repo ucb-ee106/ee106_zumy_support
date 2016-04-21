@@ -11,3 +11,4 @@
 compiled_on.txt
 git_log.txt
 last_loaded.txt
+*.pyc
