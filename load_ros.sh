@@ -19,3 +19,14 @@ cd ../
 dt=`date '+%d/%m/%Y %H:%M:%S'`
 echo "$dt" > "last_loaded.txt"
 scp "last_loaded.txt" "zumy@"$NAME".local:"
+
+#load files showing git log, and git status, to the zumy.  Useful for finding out versioning information
+git log > "git_log.txt"
+git status > "git_status.txt"
+scp "git_log.txt" "zumy@"$NAME".local:"
+scp "git_status.txt" "zumy@"$NAME".local:"
+
+#cleanup
+rm "last_loaded.txt"
+rm "git_status.txt"
+rm "git_log.txt"
