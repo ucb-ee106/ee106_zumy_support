@@ -10,8 +10,12 @@ NAME="$1"
 echo "Loading to " $NAME
 cd on_zumy_odroid/
 NUMFILES="$(find . -type f | wc -l)"
-echo "rsyncing ros code"
 
+echo "cleaning old files"
+scp "file_cleaner.sh" "zumy@"$NAME".local:"
+ssh "zumy@"$NAME".local" /home/zumy/file_cleaner.sh
+
+echo "rsyncing ros code"
 rsync -r --delete --stats --human-readable * "zumy@"$NAME".local:" | pv -lep -s $NUMFILES
 cd ../
 
