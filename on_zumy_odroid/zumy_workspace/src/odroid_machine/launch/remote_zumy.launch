@@ -14,7 +14,7 @@
   </include>
 
   
-  <node machine="$(arg mname)" ns="$(arg mname)" name="zumy_ros_bridge" pkg="ros_zumy" type="zumy_ros_bridge.py"  output="screen" >
+  <node machine="$(arg mname)" ns="$(arg mname)" name="zumy_ros_bridge" pkg="zumy_ros" type="zumy_ros_bridge.py"  output="screen" >
     	 <param name="timeout" value="$(arg timeout)" />
   </node>
 </launch>
