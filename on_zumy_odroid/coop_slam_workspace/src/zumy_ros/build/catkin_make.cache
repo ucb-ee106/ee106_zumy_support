@@ -1,2 +1,0 @@
-ros_zumy
--DCATKIN_DEVEL_PREFIX=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/devel -DCMAKE_INSTALL_PREFIX=/home/doug/Desktop/ee106_zumy_support/on_zumy_odroid/zumy_ros/install -G Unix Makefiles
