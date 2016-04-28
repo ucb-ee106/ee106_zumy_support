@@ -13,15 +13,15 @@ while [ "$result" != "1" ]; do
   echo "$counter"
   
   if [ "$counter" = "$count_time" ]; then
-    echo "\nGiving up and rebooting...\n"
+    printf "\nGiving up and rebooting...\n"
     python home/zumy/zumy_workspace/src/zumy_ros/src/ping_light.py
     exit 0
     # echo odroid | sudo -S reboot
   fi
   if [ "$result" = "1" ]; then
-     echo "\nWireless network found\n"
+     printf "\nWireless network found\n"
   else
-     printf "\nNo wireless connection\nTrying to reconnect...\n\n"
+     printf "\nNo wireless connection\nTrying to reconnect...\nSoftware disabling & re-enabling wifi\n\n"
      echo odroid | sudo -S ifdown wlan0
      echo odroid | sudo -S ifup wlan0
   fi
