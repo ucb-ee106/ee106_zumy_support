@@ -3,10 +3,17 @@
 result="0"
 counter=0
 count_time=3
-host="m92p-3.local"
+  echo "Avahi is not up"
+  avahi-daemon --check
+  up=$? #magic icantation to get the last exit status code in this script, which in this case, is the one for avahi-daemon 
+  sleep 0.05
+
+done
+
+echo "Avahi is up"
 
 while [ "$result" != "1" ]; do
-
+  sleep 0.5
   result=$(nmap "$host" -sP | grep -o -P '..host up'| awk '{print $1}')
   #echo "$result"
   counter=$((counter+1))
