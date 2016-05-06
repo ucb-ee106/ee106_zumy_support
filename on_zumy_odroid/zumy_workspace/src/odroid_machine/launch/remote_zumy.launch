@@ -4,7 +4,7 @@
   
 
  
-  <node ns="(arg mname)" name="base_station" pkg="odroid_machine" type="estop.py" output="screen">
+  <node ns="$(arg mname)" name="base_station" pkg="odroid_machine" type="estop.py" output="screen">
   	<param name="mname" value="$(arg mname)"/>
   </node>
  
