@@ -91,8 +91,10 @@ class SerialRPC(mbed):
         cur_time = time.time() #give some time for the zumy's comms to startup and crank out bytes.
 
         #crank out bytes for three seconds, so I know that all startup messages are gone.        
-        while time.time() < cur_time +3:
-            self.ser.readlines()
+        time.sleep(3)
+        #while time.time() < cur_time +3:
+        self.ser.flushInput()
+        #print(self.ser.readlines())
 
     def rpc(self, name, method, args):
         string = "/" + name + "/" + method + " " + " ".join(args) + "\r" #use \r due to zumy's get string implimentation
