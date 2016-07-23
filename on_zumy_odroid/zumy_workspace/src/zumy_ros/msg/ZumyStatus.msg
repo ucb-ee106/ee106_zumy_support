@@ -1,0 +1,2 @@
+string enabled_status
+string battery_unsafe
