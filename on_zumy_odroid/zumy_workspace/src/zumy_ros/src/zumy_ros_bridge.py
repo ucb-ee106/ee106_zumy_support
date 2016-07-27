@@ -52,7 +52,6 @@ class ZumyROS:
       self.timeout = 2 #Length of watchdog timer in seconds, defaults to 2 sec.
     
     #publishers
-    self.heartBeat = rospy.Publisher('heartBeat', String, queue_size=5)
     self.status_pub = rospy.Publisher("Status",ZumyStatus, queue_size=5)
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
     self.r_enc_pub = rospy.Publisher('r_enc', Int32, queue_size = 5)
@@ -140,8 +139,6 @@ class ZumyROS:
         self.watchdog = False
         self.zumy.disable()
       self.zumy.battery_protection() # a function that needs to be called with some regularity.
-
-      self.heartBeat.publish("Alive, enabled is: " + str(self.zumy.enabled) + " Battery unsafe is: " + str(self.zumy.battery_unsafe()))
 
       status_msg = ZumyStatus()
       status_msg.enabled_status = self.zumy.enabled
