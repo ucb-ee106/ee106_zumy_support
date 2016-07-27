@@ -5,6 +5,7 @@ from Tkinter import Tk, Label, Button
 import rospy
 import time
 from std_msgs.msg import String,Bool,Float32
+from zumy_ros.msg import ZumyStatus
 
 check_time = time.time() #timer used so that the watchdog doesn't get published at an insane rate.
 
@@ -50,7 +51,7 @@ class GUI:
 
 
         self.heartbeat_pub = rospy.Publisher('/base_computer',String,queue_size=1) #/base_computer topic, the global watchdog.  May want to investigate what happens when there moer than one computer and more than one zumy
-        self.zumy_heartbeat = rospy.Subscriber('/' + self.robot + '/heartBeat',String,self.callback,queue_size = 1)
+        self.zumy_heartbeat = rospy.Subscriber('/' + self.robot + '/Status',ZumyStatus,self.callback,queue_size = 1)
         self.zumy_enable = rospy.Publisher('/' + self.robot + '/enable',Bool,queue_size = 1) #The GUI actuates the publish topic.
         self.zumy_voltage = rospy.Subscriber('/'+self.robot+'/Batt',Float32,self.voltage_callback,queue_size = 1)
 
@@ -86,10 +87,8 @@ class GUI:
 
     def callback(self,msg):
         self.last_heard = time.time()
-        #strip out the last few characters, which corrispond to battery saftey
-        string = str(msg)
-        string = string[-4:]
-        if string == "True":
+        if msg.battery_unsafe:
+        	#my battery is unsafe... irreversably latch battery_unsafe to True, and the disable the robot.
             self.battery_unsafe = True
             self.change_enable_state()
 

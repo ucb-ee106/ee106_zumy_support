@@ -1,2 +1,2 @@
-string enabled_status
-string battery_unsafe
+bool enabled_status
+bool battery_unsafe

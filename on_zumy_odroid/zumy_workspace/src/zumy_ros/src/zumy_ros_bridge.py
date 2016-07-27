@@ -7,6 +7,7 @@ from threading import Condition
 from zumy import Zumy
 from std_msgs.msg import String,Header,Int32,Float32,Bool
 from sensor_msgs.msg import Imu
+from zumy_ros.msg import ZumyStatus
 
 import socket,time
 
@@ -52,6 +53,7 @@ class ZumyROS:
     
     #publishers
     self.heartBeat = rospy.Publisher('heartBeat', String, queue_size=5)
+    self.status_pub = rospy.Publisher("Status",ZumyStatus, queue_size=5)
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
     self.r_enc_pub = rospy.Publisher('r_enc', Int32, queue_size = 5)
     self.l_enc_pub = rospy.Publisher('l_enc', Int32, queue_size = 5)
@@ -141,13 +143,16 @@ class ZumyROS:
 
       self.heartBeat.publish("Alive, enabled is: " + str(self.zumy.enabled) + " Battery unsafe is: " + str(self.zumy.battery_unsafe()))
 
+      status_msg = ZumyStatus()
+      status_msg.enabled_status = self.zumy.enabled
+      status_msg.battery_unsafe = self.zumy.battery_unsafe()
+      self.status_pub.publish(status_msg)
+
+
+
 
       self.lock.release() #must be last command involving the zumy.
-      
-
-
-
-      
+     
       self.rate.sleep()
 
       
