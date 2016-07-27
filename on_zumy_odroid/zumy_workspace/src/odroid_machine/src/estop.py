@@ -34,9 +34,12 @@ class GUI:
         self.voltage_label = Label(master,text = "VBatt = " + str(self.voltage))
         self.voltage_label.grid(row=2,column=1)
 
+        self.loop_freq = 0
+        self.loop_freq_label = Label(master,text = "Zumy Ros Freq: " + str(self.loop_freq) + " Hz")
+        self.loop_freq_label.grid(row=3,column = 1)
 
         self.last_heard_label = Label(master,text = "Last Heard = Never")
-        self.last_heard_label.grid(row=3,column = 1)
+        self.last_heard_label.grid(row=4,column = 1)
 
 
         self.enable_button = Button(master, text="Disable", command=self.change_enable_state)
@@ -91,6 +94,8 @@ class GUI:
         	#my battery is unsafe... irreversably latch battery_unsafe to True, and the disable the robot.
             self.battery_unsafe = True
             self.change_enable_state()
+        self.loop_freq = msg.loop_freq
+        self.loop_freq_label["text"] = "Zumy Ros Freq: " + (" %.2f" % self.loop_freq)  + " Hz"
 
 
 

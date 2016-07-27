@@ -8,6 +8,7 @@ from zumy import Zumy
 from std_msgs.msg import String,Header,Int32,Float32,Bool
 from sensor_msgs.msg import Imu
 from zumy_ros.msg import ZumyStatus
+import numpy as np
 
 import socket,time
 
@@ -65,6 +66,10 @@ class ZumyROS:
 
     self.last_message_at = time.time()
     self.watchdog = True 
+
+    #an array of times, which will be updated, and used to figure out how fast the while loop is going.
+    self.laptimes = np.ones(6)*time.time()
+
 
 
 
@@ -140,9 +145,17 @@ class ZumyROS:
         self.zumy.disable()
       self.zumy.battery_protection() # a function that needs to be called with some regularity.
 
+
+      #handle the robot status message
       status_msg = ZumyStatus()
       status_msg.enabled_status = self.zumy.enabled
       status_msg.battery_unsafe = self.zumy.battery_unsafe()
+      #update the looptimes, which will get published in status_msg
+      self.laptimes = np.delete(self.laptimes,0)
+      self.laptimes = np.append(self.laptimes,time.time())
+      #take average over the difference of the times... and then invert.  That will give you average freq.
+      status_msg.loop_freq = 1/float(np.mean(np.diff(self.laptimes)))
+
       self.status_pub.publish(status_msg)
 
 
@@ -150,6 +163,7 @@ class ZumyROS:
 
       self.lock.release() #must be last command involving the zumy.
      
+
       self.rate.sleep()
 
       
