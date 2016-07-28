@@ -171,6 +171,11 @@ class ZumyROS:
 
     # If shutdown, turn off motors & disable anything else.
     self.zumy.disable()
+    time.sleep(.1)
+    self.zumy.rlock.acquire()
+    self.zumy.timeout.run(str(0)) #disable timeouts again.
+    self.zumy.rlock.release()
+
 
 if __name__ == '__main__':
   zr = ZumyROS()

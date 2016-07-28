@@ -38,6 +38,9 @@ class Zumy:
         self.tracks = RPCFunction(self.mbed,"sm")
         self.mbed_enable = RPCFunction(self.mbed,"enable")
 
+        self.timeout = RPCFunction(self.mbed,"timeout")
+
+
         self.an = AnalogIn(self.mbed, p15)
         self.imu_vars = [RPCVariable(self.mbed,name,delete = False) for name in imu_names]
         self.enc_pos_vars = [RPCVariable(self.mbed,name,delete = False) for name in enc_pos_names]
@@ -55,8 +58,19 @@ class Zumy:
         self.battery_lock = False #a boolean to tell me if my battery ever dipped below the battery threshold.
         self.enable() #tell the zumy that it's enabled.
 
+        self.rlock.acquire()
+        self.timeout.run(str(4)) #and give the zumy a 4 second timeout on the RPC commands.  Anything less, and the robot doesn't boot reliably.
+        self.rlock.release()
+
+
     def __del__(self):
       self.disable()
+
+      self.rlock.acquire()
+      self.timeout.run(str(0)) #disable timeouts again.
+      self.rlock.release()
+
+
 
     def cmd(self, left, right):
         self.rlock.acquire()

@@ -27,19 +27,24 @@ DigitalOut test(LED4);
 Track* track_right;
 Track* track_left;
 
-
-
+bool use_timeout = false;
+float timeout_duration = 2; //2 seconds, but still, it defaults to false and this will get overwritten.
+bool start_once = false; //used for speeding up the blinking on watchdog problems.
 
 void led_blink_periodic(void const *args) {
     // Toggle the green LED when this function is called.
+    //fast blink is an error state, usually when watchdog has been triggered.
     test = !test;
 }
+
+
+
 
 int main() {
 
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(200);
+    ledBlinkTimer.start(1000);
 
    
 
@@ -65,6 +70,22 @@ int main() {
         r_spd=track_right->get_speed();
         l_spd=track_left->get_speed();
 
+        //handle watchdog timeout.
+        if(use_timeout && (timeout_duration < last_recieved.read()))
+        {
+        	//directly disable tracks.  May want to have smarter debug in the future...
+		    track_left->enable(false);
+    		track_right->enable(false);
+    	    if(! start_once)
+    	    {
+	    	    ledBlinkTimer.stop();
+    	    	Thread::wait(100);
+	   		    ledBlinkTimer.start(200);
+	   		    start_once = true;
+    	    }
+
+        }
+
         Thread::wait(10);  //non-blocking wait.  may not be 100% precise, but better than blocking.
     }
 
@@ -82,12 +103,10 @@ void enable(Arguments* input, Reply *output) //0 to disable tracks.  anything el
     {
         enab = true;    
     }
-    
     track_left->enable(enab);
     track_right->enable(enab);
 
 }
-
 
 void sm(Arguments* input, Reply *output);
 //Attach it to an RPC object.
@@ -121,4 +140,26 @@ void pid(Arguments* input, Reply *output)
 
     track_right->set_gains(kp,ki,kd);
     track_left->set_gains(kp,ki,kd);
+}
+
+
+void timeout(Arguments* input, Reply *output);
+//Attach it to an RPC object.
+RPCFunction rpc_timeout(&timeout, "timeout");
+void timeout(Arguments* input, Reply *output)
+{
+    //function that enables / disables RPC-based timeouts.
+    //If enabled (which is false by default, the odroid makes it true), the robot will disable itself if it hasn't recieved an RPC message in the appopriate time.
+    //Input: one float.  If float is 0, there is no timeout. 
+
+	float time = input->getArg<float>();
+	if(time == 0)
+	{
+		use_timeout = false;
+	}
+	else
+	{
+		use_timeout = true;
+		timeout_duration = time;
+	}
 }

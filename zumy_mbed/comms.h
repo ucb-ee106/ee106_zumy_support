@@ -6,6 +6,7 @@
 
 
 extern MODSERIAL pc; //the serial port that everyone uses to printf.
+extern Timer last_recieved; //a timer that measures the time since I last got some information
 
 
 void init_comms(); //starts up comms, just as you'd expect.  Call once before any printfs.

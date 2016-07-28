@@ -7,6 +7,7 @@ char rpc_input_buf[256];
 char rpc_output_buf[1024];
 //The input and output buffers.
 
+Timer last_recieved;
 
 //SerialRPCInterface SerialRPC(USBTX, USBRX, 115200);
 MODSERIAL pc(USBTX, USBRX); // tx, rx
@@ -39,6 +40,7 @@ void handle_incoming_traffic(void const *n)
         //pc.gets(rpc_input_buf, 256);
         gets_cr(pc,rpc_input_buf,256); //works around the ctrl-enter (in minicom at least) thing. 
         //However, everything needs to be appended with a space...
+        last_recieved.reset(); //reset the timer, since i finally got a complete string.
 
         RPC::call(rpc_input_buf, rpc_output_buf);
 
@@ -72,6 +74,8 @@ void init_comms()
     //LPC1768 Apparently possible to go up to 921600, which is 8x this.  Odroid can't seem to go that fast.
     wait_ms(20); //pause for just a bit.
     pc.printf("Hello world! \n\r");
+
+    last_recieved.start();
 
     commsThread = new Thread(handle_incoming_traffic);
 }
