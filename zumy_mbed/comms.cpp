@@ -67,8 +67,9 @@ void init_comms()
     #if DEVICE_ANALOGOUT
     //RPC::add_rpc_class<RpcAnalogOut>();
     #endif
-
+ 
     pc.baud(115200);
+    //LPC1768 Apparently possible to go up to 921600, which is 8x this.  Odroid can't seem to go that fast.
     wait_ms(20); //pause for just a bit.
     pc.printf("Hello world! \n\r");
 
