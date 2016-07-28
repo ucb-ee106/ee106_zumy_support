@@ -39,7 +39,7 @@ int main() {
 
 
     RtosTimer ledBlinkTimer(led_blink_periodic);
-    ledBlinkTimer.start(1000);
+    ledBlinkTimer.start(200);
 
    
 

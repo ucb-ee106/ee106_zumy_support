@@ -101,12 +101,10 @@ class SerialRPC(mbed):
         self.ser.write(string)
         time.sleep(0.0002)
         #no wait.  We may want to put a timeout here, but any wait of any kind leaves us liable to miss characters on the serial port.
-        #throwaway one line.  (Due to the implimentaiton of the mbed comms, there's an extra new line (which is convienent for human-readability via minicom))
 
-        #open question why it gets it in THIS order, not the other way around.
         #may want to, in the future, consider universal line ending mode: https://pythonhosted.org/pyserial/shortintro.html#readline
-        rval = self.ser.readline();
-        #get real value now
+
+        #get return value now
         rval = self.ser.readline().strip()
         return rval
 

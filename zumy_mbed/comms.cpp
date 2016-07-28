@@ -37,34 +37,9 @@ void handle_incoming_traffic(void const *n)
     while(1) //so this thread doesn't run out of code!
     {
         //pc.gets(rpc_input_buf, 256);
-        gets_cr(pc,rpc_input_buf,256); //works around the ctrl-enter thing. nneed to append things with a space...
-        //pc.printf("input_buf is %sEND \n\r",rpc_input_buf);
+        gets_cr(pc,rpc_input_buf,256); //works around the ctrl-enter (in minicom at least) thing. 
+        //However, everything needs to be appended with a space...
 
-        /*
-
-        char* loc = &rpc_input_buf[0];
-        pc.printf("Mem addr is %i \n\r",loc);
-        for(int i = 0; i<20; i++)
-        {
-            pc.printf("%i.",*(loc+i));
-
-        }
-
-
-        */
-
-        //pc.printf("\n\r");
-        
-        //for(int i = 0; i<20; i++)
-        //{
-        //    pc.printf("%c.",*(loc+i));
-        //}
-
-        pc.printf("\n\r");
-        
-        //pc.printf("%i..\n\r",rpc_input_buf);
-        
-        //pc.printf(rpc_input_buf);
         RPC::call(rpc_input_buf, rpc_output_buf);
 
         pc.printf("%s \n\r", rpc_output_buf);
