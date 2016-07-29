@@ -86,7 +86,7 @@ class Zumy:
     def enc_pos(self): #return in units of meters.
       self.rlock.acquire()
       try:
-        rval = [float(self.translation_factor*int(var.read())) for var in self.enc_pos_vars]
+        rval = [float(int(var.read())/self.translation_factor) for var in self.enc_pos_vars]
       except SerialException:
         pass
       self.rlock.release()

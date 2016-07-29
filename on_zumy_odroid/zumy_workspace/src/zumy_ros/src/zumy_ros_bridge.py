@@ -55,8 +55,8 @@ class ZumyROS:
     #publishers
     self.status_pub = rospy.Publisher("Status",ZumyStatus, queue_size=5)
     self.imu_pub = rospy.Publisher('imu', Imu, queue_size = 1)
-    self.r_enc_pub = rospy.Publisher('r_enc', Int32, queue_size = 5)
-    self.l_enc_pub = rospy.Publisher('l_enc', Int32, queue_size = 5)
+    self.r_enc_pub = rospy.Publisher('r_enc',Float32, queue_size = 5)
+    self.l_enc_pub = rospy.Publisher('l_enc',Float32, queue_size = 5)
     self.r_vel_pub = rospy.Publisher('r_vel',Float32,queue_size = 5)
     self.l_vel_pub = rospy.Publisher('l_vel',Float32,queue_size = 5)
     
@@ -116,7 +116,7 @@ class ZumyROS:
 
       try:
         enc_data = self.zumy.enc_pos()
-        enc_msg = Int32()
+        enc_msg = Float32()
         enc_msg.data = enc_data[0]
         self.r_enc_pub.publish(enc_msg)
         enc_msg.data = enc_data[1]
