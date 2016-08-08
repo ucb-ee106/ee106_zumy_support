@@ -119,6 +119,6 @@ export LC_ALL="C"
 
 source /opt/ros/indigo/setup.bash
 #source zumy_ros instead of coop_slam
-source /home/zumy/zumy_ros/devel/setup.bash
+source /home/zumy/zumy_workspace/devel/setup.bash
 #export the ros package path so we can get that autoload script/
-export ROS_PACKAGE_PATH=/home/zumy/zumy_ros/src:/opt/ros/indigo/share:/opt/ros/indigo/stacks
+export ROS_PACKAGE_PATH=/home/zumy/zumy_workspace/src:/opt/ros/indigo/share:/opt/ros/indigo/stacks
