@@ -8,7 +8,7 @@ echo ""
 NAME="$1"
 
 echo "Loading to " $NAME
-cd on_zumy_odroid/
+cd zumy_odroid/
 NUMFILES="$(find . -type f | wc -l)"
 
 echo "cleaning old files"
