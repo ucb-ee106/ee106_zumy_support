@@ -27,7 +27,7 @@ while [ "$result" != "1" ]; do
   
   if [ "$counter" = "$count_time" ]; then
     printf "\nGiving up and rebooting...\n"
-    python home/zumy/zumy_workspace/src/zumy_ros/src/ping_light.py
+    python /home/zumy/zumy_workspace/src/zumy_ros/src/ping_light.py
     exit 0
     # echo odroid | sudo -S reboot
   fi
