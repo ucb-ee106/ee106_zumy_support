@@ -31,8 +31,8 @@ class ZTBridge():
     self.still = t 
 
   def teleopCB(self, data):
-    self.twist.linear.x = 0.25 * data.linear.x
-    self.twist.angular.z = 0.25 * data.angular.z
+    self.twist.linear.x = 0.1 * data.linear.x
+    self.twist.angular.z = 1.0 * data.angular.z
   
   
   def run(self):
