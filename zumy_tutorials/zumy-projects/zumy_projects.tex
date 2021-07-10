@@ -1,0 +1,178 @@
+\documentclass[10pt]{article}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{fancyvrb}
+\usepackage{url}
+
+\begin{document}
+\title{EE106A: Personal Accounts on the Zumy}
+\author{Victor Shia}
+\date{Nov 12, 2015}
+\maketitle
+
+\emph{Relevant Tutorials and Documentation:} 
+\begin{itemize}
+\item \verb=zumy=: \url{https://wiki.eecs.berkeley.edu/biomimetics/Main/Zumy}
+\item \verb=odroid_machine=: \url{https://github.com/vshia/odroid_machine}
+\item \verb=ros_zumy=: \url{https://github.com/abuchan/ros_zumy}
+\item \verb=usb_cam=: \url{http://wiki.ros.org/usb_cam}
+\item \verb=ar_track_alvar=: \url{http://wiki.ros.org/ar_track_alvar}
+\end{itemize}
+
+\tableofcontents
+
+
+\section{Creating your own account on the Zumy}
+
+To create your own account on the Zumy, do the following: \\ \\
+First, \textbf{on the Zumy}, you need to create a separate user with sudo permissions.
+Follow the instructions:
+\begin{enumerate}
+\item sudo adduser $<$ username $>$ sudo
+\item copy the .bashrc file from the Zumy's home directory to your home directory
+\end{enumerate}
+
+All of your code that lies on the Zumy should be in YOUR home directory, not the Zumy's home directory.
+\\ \\
+Next, \textbf{on your computer}, you need all of your commands to point the files in your new directory (not Zumy's directory).
+Follow the instructions:
+\begin{enumerate}
+\item Run \verb=ssh-copy-id < username >@zumyX.local=
+\item Make sure you can SSH using your username into the Zumy without a password
+\item In odroid\_machine.launch, in the line:
+\begin{verbatim}
+<arg name="odroid_machine_path" 
+  default="/home/zumy/coop_slam_workspace/src/odroid_machine" />
+\end{verbatim}
+Change the default to 
+\begin{verbatim}
+default="/home/< username >/coop_slam_workspace/src/odroid_machine"
+\end{verbatim}
+\item In ros\_env\_loader.bash, in the line: change 
+\begin{verbatim}
+export MACHINE_TYPE=zumy
+\end{verbatim}
+ to 
+\begin{verbatim}
+export MACHINE_TYPE=< username >
+\end{verbatim}
+\end{enumerate}
+
+These instructions make sure when you run remote\_zumy.launch, it calls the correct directory on the Zumy.
+
+\section{Transferring general code to the Zumy}
+
+There are two ways of transferring data to the Zumy
+
+\begin{enumerate}
+\item \verb=scp -r << source file >>  << remote file >>= \\ (i.e.  scp -r file1 username@zumyX.local:$\sim$/)
+\item If the data is online (i.e. on git), plug in the Zumy to the network via the ethernet cable
+  \begin{enumerate}
+      \item Plug in the Zumy via ethernet cable.  (Use one of the cables connected to the lab computers)
+      \item SSH into the Zumy via the wireless network
+      \item Turn on the ethernet port via: \verb=sudo ifconfig eth0 up=
+      \item Connect the ethernet port to the network via: \verb=sudo dhclient eth0 -v= 
+      \item Download the file from the internet
+  \end{enumerate}
+\end{enumerate}
+
+\section{Installing the usb\_cam package on the Zumy}
+To install the necessary packages for the usb camera on the Zumy, you'll need to install the usb\_cam package (wiki is found above).  
+As the ZumyRouter wireless network is not connected to the Internet, you'll have to use the ethernet port.
+
+\begin{enumerate}
+  \item Plug in the Zumy via ethernet cable.  (Use one of the cables connected to the lab computers)
+  \item SSH into the Zumy via the wireless network
+  \item Turn on the ethernet port via: \verb=sudo ifconfig eth0 up=
+  \item Connect the ethernet port to the network via: \verb=sudo dhclient eth0 -v= 
+  \item Run: \verb=sudo apt-get update=
+  \item Install the package via the command:
+  \begin{verbatim}
+  sudo apt-get install ros-indigo-usb-cam ros-indigo-ar-track-alvar
+  \end{verbatim}
+  \item Make sure the camera is plugged in
+  \item Type in the command (this may not be needed but it doesn't hurt...) :
+  \begin{verbatim}
+  sudo chmod 777 /dev/video*
+  \end{verbatim}
+\end{enumerate}
+
+\section{Running the USB camera on the Zumy}\label{sec:usb_cam}
+
+Now, the usb camera package is installed on the Zumy.  Perform the next steps \textbf{on the lab computers}.
+
+\begin{enumerate}
+  \item Transfer the camera calibration yml file for the appropriate camera (if it's the Microsoft Lifecam camera, use the yml file found in lab 6) to the Zumy.  Do this via the command: 
+  \begin{verbatim}
+  scp << yml file >>  zumy@zumyX.local:~
+  \end{verbatim}
+  \item Goto the odroid\_machine package and open up the remote\_zumy.launch launch file.  Add in the lines:
+  \begin{verbatim}
+<node machine="$(arg mname)" ns="$(arg mname)"
+      name="usb_cam" pkg="usb_cam" type="usb_cam_node" >
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="1280" />
+    <param name="image_height" value="720" />
+    <param name="pixel_format" value="mjpeg" />
+    <param name="camera_frame_id" value="usb_cam" />
+    <param name="io_method" value="mmap" />
+    <param name="camera_info_url" value=
+         << path to the yml file on the Zumy (CHANGE THIS) >> />
+</node>
+  \end{verbatim}
+  \item Start up the zumy and type in \verb=rostopic list=.  You should see a camera topic for your Zumy.
+  \item Run Rviz and make sure you see a camera image on the Zumy.
+\end{enumerate}
+
+Note, you may not want to stream live video from the Zumy to the machine.  Due to the high bandwidth that video takes, it streams at 1Hz at best (though I've seen 0.25 to 0.5 Hz).  If you want to use the camera, do most of the processing on the Zumy and send processed data over the network. 
+Note, if you use a different camera (such as the Logitech cameras), you will need to change the appropriate lines and give it the correct yml file.  (Hint: the Logitech cameras use the yml file from Lab 4).
+Note, in the launch file, the only difference between running a node locally and one on a remote computer (i.e. the zumy) is the line: 
+\begin{verbatim}
+machine="$(arg mname)" ns="$(arg mname)"
+\end{verbatim}
+
+\section{Running ar\_track\_alvar on the Zumy}\label{sec:artrack}
+
+To run the AR tracking on the Zumy, add the following to the remote\_zumy.launch launch file after the lines in Section \ref{sec:usb_cam}
+  \begin{verbatim}
+  <arg name="marker_size" default="5.6" />
+  <arg name="max_new_marker_error" default="0.08" />
+  <arg name="max_track_error" default="0.2" />
+  <arg name="cam_image_topic" default="/$(arg mname)/usb_cam/image_raw" />
+  <arg name="cam_info_topic" default="/$(arg mname)/usb_cam/camera_info" />
+  <arg name="output_frame" default="/usb_cam" />
+  <node machine="$(arg mname)" ns="$(arg mname)"
+    name="ar_track_alvar" pkg="ar_track_alvar" type="individualMarkersNoKinect" 
+    respawn="false" output="screen" args="$(arg marker_size) 
+    $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) 
+    $(arg cam_info_topic) $(arg output_frame)" />
+  \end{verbatim}
+  
+Notice that there are two different ways of inputting parameter arguments when calling the node.
+I'm not going to explain it but you can read up at \url{http://wiki.ros.org/roslaunch}.
+
+\section{Debugging the usb camera on the Zumy}
+
+To debug the camera, make sure of the following:
+\begin{enumerate}
+\item do you see the /zumyX/usb\_cam/image\_raw topic?
+\item if you echo the topic, do you see anything?  if not, then your usb camera isn't starting up properly.
+\item if you echo the /zumyX/usb\_cam/camera\_info topic, do you see numbers or all 0s?  If 0s, then you're not reading the yml file properly.
+\item do you see the /tf topic? if not, then ar\_track\_alvar isn't starting up properly
+\item if you echo the topic, do you see anything?
+\end{enumerate}
+If this doesn't work, look it up online.  
+
+\section{Debugging the wired networking on the Zumy}
+
+There isn't any set way of getting this to work, so you'll just have to mess around with it.
+I've tried:
+\begin{itemize}
+\item The ethernet port may not be \textit{eth0}.  Run \verb=ifconfig -a= to figure out what the ethernet port is.  It could be \textit{eth1} or \textit{eth2}, or something else.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,86 @@
+\documentclass[10pt]{article}
+\usepackage{times}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{fancyvrb}
+\usepackage{url}
+
+\begin{document}
+\title{EE106A: Zumy Troubleshooting Guide}
+\author{Victor Shia, Jaime Fisac}
+\date{October 1, 2015}
+\maketitle
+
+\emph{Relevant Tutorials and Documentation:} 
+\begin{itemize}
+\item \verb=odroid_machine=: \url{https://github.com/vshia/odroid_machine}
+\item \verb=zumy_teleop=: \url{https://github.com/jlamyi/zumy_teleop}
+\item \verb=man_joy_override=: \url{https://github.com/jlamyi/man_joy_override}
+\end{itemize}
+
+\tableofcontents
+
+
+\section{Troubleshooting the Zumy}
+As the Zumys are new research devices, there will be times that you run into trouble with the Zumys.
+This guide has been divided into different sections: connecting and running.
+For this guide, we will assume the Zumy's name is zumy6.  
+For your own zumy, change zumy6 to zumy\# as appropriate.
+
+\section{Issues with Connecting to the Zumy} \label{connecting}
+
+\begin{enumerate}
+  \item Can you ping the zumy?  (\verb=ping zumy6.local=) \label{ping}
+  \begin{enumerate}
+    \item No - is the computer connected to the wifi network: ZumyRouter 
+    \item No - try reconnecting to the network: ZumyRouter
+    \item No - try restarting the computer (sometimes this helps with the wifi connection)
+    \item Yes - move on. 
+  \end{enumerate}
+  \item Can you SSH into the Zumy?  (\verb=ssh zumy@zumy6.local=)
+  \begin{enumerate}
+    \item No - Go back to Subsection \ref{ping}
+    \item Yes - Do you need to type in the password?  If yes, redo your SSH keys.  If no, move on.
+  \end{enumerate}
+  
+\end{enumerate}
+
+\section{Issues with the Zumy suddenly not responding after starting roslaunch}
+\begin{enumerate}
+  \item Can you ping it?  (If not, goto Section \ref{connecting})
+  \item Is the Zumy still on? (sometimes it turns off)
+  \begin{enumerate}
+    \item No - turn it on and try again
+    \item Yes - move on. 
+  \end{enumerate}  
+  \item Is the Zumy tethered to the power supply?
+  \begin{enumerate}
+    \item Yes - Is the power supply at 12V?
+    \item Yes - Try a fresh battery
+    \item No - Move on
+  \end{enumerate}  
+  \item Is the Zumy using a battery?
+  \begin{enumerate}
+    \item Yes - switch batteries
+    \item No - use a fresh battery
+  \end{enumerate}  
+\end{enumerate}
+
+One thing we've discovered with the Zumy is that when it is tethered, it tends to draw more power than the power supply can give.
+When that happens, the Zumy suddenly stops responding.
+This issue does \textbf{not} occur with the battery.
+Our suggestion is to tether the Zumy to the power supply when you are just getting started (setting up the Zumy, SSH keys, etc)
+When you actually want to run the lab and have the Zumy move, use the battery.
+
+\section{Issues with Driving the Zumy around}
+
+\begin{enumerate}
+  \item Can you ping it?  (If not, goto Section \ref{connecting})
+  \item Restart the Zumy
+  \item Look at the rqt\_graph to make sure your nodes and topics are correct
+\end{enumerate}
+
+\end{document}
